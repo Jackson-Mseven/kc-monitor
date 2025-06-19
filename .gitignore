@@ -1,5 +1,5 @@
 # dependencies
-node_modules/*
+node_modules
 packages/*/package-lock.json
 dev-packages/*/package-lock.json
 package-lock.json

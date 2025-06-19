@@ -1,12 +1,14 @@
 {
-  "name": "kc-monitoring",
+  "name": "kc-monitor",
   "private": true,
   "version": "0.1.0",
   "scripts": {
     "prepare": "husky install",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "format": "prettier --write .",
-    "commit": "git add . && cz"
+    "commit": "git add . && cz",
+    "build": "tsc -b",
+    "clean": "rm -rf packages/*/dist"
   },
   "workspaces": [
     "packages/*"
@@ -41,5 +43,13 @@
     "node": "20.18.2",
     "yarn": "1.22.22",
     "pnpm": "10.7.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "@kc-monitor/react": "link:packages/react"
+    }
+  },
+  "dependencies": {
+    "@kc-monitor/react": "link:packages/react"
   }
 }

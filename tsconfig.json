@@ -1,31 +1,6 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "lib": ["DOM", "ES2020"],
-    "allowJs": false,
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "resolveJsonModule": true,
-    "declaration": true,
-    "sourceMap": true,
-    "composite": true,
-    "outDir": "dist",
-    "baseUrl": ".",
-    "paths": {
-      "@core/*": ["packages/core/src/*"],
-      "@react/*": ["packages/react/src/*"],
-      "@dashboard/*": ["packages/dashboard/src/*"]
-    }
-  },
-  "exclude": ["node_modules", "dist"],
-  "references": [
-    { "path": "packages/core" },
-    { "path": "packages/react" },
-    { "path": "packages/dashboard" }
-  ]
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "include": [],
+  "references": [{ "path": "packages/core" }, { "path": "packages/react" }]
 }

@@ -1,3 +1,24 @@
 {
-  "extends": "./tsconfig.json"
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "lib": ["DOM", "ES2020"],
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@kc-monitor/core": ["packages/core/src"],
+      "@kc-monitor/react": ["packages/react/src"]
+    }
+  }
 }

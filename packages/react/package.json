@@ -1,0 +1,26 @@
+{
+  "name": "@kc-monitor/react",
+  "version": "0.1.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.7.1",
+  "peerDependencies": {
+    "react": "^16.14.0 || 17.x || 18.x || 19.x"
+  },
+  "dependencies": {
+    "@kc-monitor/core": "workspace:*"
+  }
+}
