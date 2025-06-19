@@ -1,11 +1,18 @@
-import type { Context, Metadata, MonitorConfig, Transaction, TransactionType } from './types'
+import type { Context, Metadata, MonitorConfig, Transaction, TransactionType, User } from './types'
 import reportBeacon from './utils/reportBeacon'
 import { v4 as uuidv4 } from 'uuid'
+import { version } from '../package.json'
 
 class Monitor {
   #config: MonitorConfig = { dsn: '' }
-  #metadata: Metadata = {}
+  #metadata: Metadata = { version }
   #context: Context = {}
+  #user: User = {
+    id: '1',
+    name: 'kincy',
+    email: 'bill714@foxmail.com',
+    ip_address: 'hangzhou,china',
+  }
 
   set config(config: MonitorConfig) {
     this.#config = config
@@ -31,6 +38,14 @@ class Monitor {
     return this.#context
   }
 
+  set user(user: User) {
+    this.#user = { ...this.#user, ...user }
+  }
+
+  get user() {
+    return this.#user
+  }
+
   sendTransaction(transaction) {
     if (!this.#config.dsn) return
     reportBeacon<Transaction>(this.#config.dsn, {
@@ -38,12 +53,7 @@ class Monitor {
       timestamp: new Date().toLocaleString(),
       metadata: this.#metadata,
       context: this.#context,
-      user: {
-        id: '',
-        name: '',
-        email: '',
-        ip_address: '',
-      },
+      user: this.#user,
       ...transaction,
     })
   }

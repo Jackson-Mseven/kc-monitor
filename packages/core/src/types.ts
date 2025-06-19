@@ -8,12 +8,19 @@ export interface MonitorConfig {
 export type TransactionType = (typeof TRANSACTION_TYPE)[keyof typeof TRANSACTION_TYPE]
 
 export interface Metadata {
-  [key: string]: string
+  version?: string
 }
 
 export interface Context {
   framework?: string
   version?: string
+}
+
+export interface User {
+  id: string
+  name: string
+  email: string
+  ip_address: string
 }
 
 export interface Transaction {

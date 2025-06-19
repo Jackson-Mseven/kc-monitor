@@ -4,5 +4,5 @@
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "cSpell.words": ["eslintcache", "kcmonitor", "nxcache", "ttfb", "uuidv"]
+  "cSpell.words": ["eslintcache", "kcmonitor", "kincy", "nxcache", "ttfb", "uuidv"]
 }
