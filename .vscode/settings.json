@@ -4,5 +4,24 @@
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "cSpell.words": ["eslintcache", "kcmonitor", "kincy", "nxcache", "ttfb", "uuidv"]
+  "cSpell.words": [
+    "autoincrement",
+    "clickhouse",
+    "eslintcache",
+    "kafkajs",
+    "kcmonitor",
+    "kincy",
+    "nxcache",
+    "ttfb",
+    "uuidv"
+  ],
+  "[dotenv]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "[ignore]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "[plaintext]": {
+    "editor.defaultFormatter": "lkrms.inifmt"
+  }
 }

@@ -48,8 +48,5 @@
     "overrides": {
       "@kc-monitor/react": "link:packages/react"
     }
-  },
-  "dependencies": {
-    "@kc-monitor/react": "link:packages/react"
   }
 }
