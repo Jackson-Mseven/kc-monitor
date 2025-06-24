@@ -1,5 +1,5 @@
-export type User = {
-  id: string | number
+export interface User {
+  id: string
   username: string
   password: string
   email: string

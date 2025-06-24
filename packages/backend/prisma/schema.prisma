@@ -7,10 +7,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id         Int       @id @default(autoincrement())
-  username   String
-  password   String
-  email      String    @unique(map: "email_ukey")
-  created_at DateTime? @default(now()) @db.Timestamp(6)
+model project {
+  id           Int            @id @default(autoincrement())
+  name         String
+  created_at   DateTime?      @default(now()) @db.Timestamp(6)
+  user_project user_project[]
+}
+
+model user {
+  id           Int            @id @default(autoincrement())
+  username     String
+  password     String
+  email        String         @unique(map: "email_ukey")
+  created_at   DateTime?      @default(now()) @db.Timestamp(6)
+  user_project user_project[]
+}
+
+model user_project {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  project_id Int
+  joined_at  DateTime @default(now()) @db.Timestamp(6)
+  role_id    Int
+  project    project  @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "project_id_rkey")
+  user       user     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id_rkey")
+}
+
+model role {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
 }

@@ -12,7 +12,9 @@
     "kcmonitor",
     "kincy",
     "nxcache",
+    "rkey",
     "ttfb",
+    "ukey",
     "uuidv"
   ],
   "[dotenv]": {
