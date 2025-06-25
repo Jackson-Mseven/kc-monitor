@@ -6,12 +6,8 @@ type Params = Pick<Role, 'id'>
 export default async function (fastify: FastifyInstance) {
   // 查询所有角色
   fastify.get('/', async (request, reply) => {
-    try {
-      const roles = await fastify.prisma.role.findMany()
-      return reply.send(roles)
-    } catch (error) {
-      return reply.status(500).send({ message: 'Internal server error', error })
-    }
+    const roles = await fastify.prisma.role.findMany()
+    return reply.sendResponse({ data: roles })
   })
 
   // 查询指定 id 的角色
@@ -20,11 +16,9 @@ export default async function (fastify: FastifyInstance) {
   }>('/:id', async (request, reply) => {
     const { id } = request.params
     const role = await fastify.prisma.role.findUnique({ where: { id: Number(id) } })
-
     if (!role) {
-      return reply.status(404).send({ message: '角色不存在' })
+      return reply.sendResponse({ code: 404, message: '角色不存在' })
     }
-
-    return reply.send(role)
+    return reply.sendResponse({ data: role })
   })
 }
