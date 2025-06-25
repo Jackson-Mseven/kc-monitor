@@ -1,7 +1,7 @@
 import { Env } from 'src/types/env'
 
 export const ENV = {
-  PORT: 3000,
+  PORT: 8080,
   HOST: '0.0.0.0',
 } satisfies Env
 
