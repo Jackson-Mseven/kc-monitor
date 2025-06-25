@@ -4,8 +4,7 @@ import { FastifyPluginAsync } from 'fastify'
 
 const postgresPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.register(fastifyPostgres, {
-    connectionString:
-      process.env.DATABASE_URL || 'postgres://admin@admin.com:admin123@localhost:5432/postgres',
+    connectionString: process.env.POSTGRES_DATABASE_URL,
   })
 }
 

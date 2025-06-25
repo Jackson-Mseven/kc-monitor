@@ -10,7 +10,7 @@ declare module 'fastify' {
 
 const clickhousePlugin: FastifyPluginAsync = async (fastify) => {
   const client = createClient({
-    host: 'http://localhost:8123', // 你容器映射的端口
+    host: process.env.CLICKHOUSE_DATABASE_URL,
     username: 'default',
     password: '',
     database: 'monitor',
