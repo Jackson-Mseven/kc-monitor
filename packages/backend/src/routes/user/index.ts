@@ -108,7 +108,9 @@ export default async function (fastify: FastifyInstance) {
         params: z.object({
           id: z.string(),
         }),
-        body: UserSchema,
+        body: UserSchema.partial().refine((data) => Object.keys(data).length > 0, {
+          message: '没有要更改的用户数据',
+        }),
         response: { 200: CustomResponseSchema },
       },
       errorHandler: validErrorHandler,

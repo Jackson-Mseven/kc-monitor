@@ -44,13 +44,37 @@ export default async function (fastify: FastifyInstance) {
       }
 
       const isPasswordCorrect = await fastify.bcrypt.compare(password, user.password)
+
       if (!isPasswordCorrect) {
         return reply.sendResponse({ ...buildErrorByCode(401), message: '密码错误' })
       }
 
+      const token = fastify.jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+        },
+        {
+          expiresIn: '7d',
+        }
+      )
+      console.log('token---', token)
+
+      reply.setCookie('token', token, {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 7 * 24 * 60 * 60,
+      })
+
       return reply.sendResponse({
         message: '登录成功',
-        data: pick(user, ['id', 'username', 'email']),
+        data: {
+          ...pick(user, ['id', 'username', 'email']),
+          token,
+        },
       })
     }
   )
@@ -76,14 +100,12 @@ export default async function (fastify: FastifyInstance) {
       const existingUser = await fastify.prisma.user.findUnique({
         where: { email },
       })
-
       if (existingUser) {
         return reply.sendResponse({ ...buildErrorByCode(409), message: '邮箱已被注册' })
       }
 
       try {
         const hashedPassword = await fastify.bcrypt.hash(password)
-
         const user = await fastify.prisma.user.create({
           data: {
             username,
@@ -92,10 +114,32 @@ export default async function (fastify: FastifyInstance) {
           },
         })
 
+        const token = fastify.jwt.sign(
+          {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+          },
+          {
+            expiresIn: '7d',
+          }
+        )
+
+        reply.setCookie('token', token, {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'strict',
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: 7 * 24 * 60 * 60,
+        })
+
         return reply.sendResponse({
           code: 201,
           message: '注册成功',
-          data: pick(user, ['id', 'username', 'email']),
+          data: {
+            ...pick(user, ['id', 'username', 'email']),
+            token,
+          },
         })
       } catch (error: any) {
         if (error.code === 'P2002') {
@@ -106,6 +150,56 @@ export default async function (fastify: FastifyInstance) {
         }
         return reply.sendDefaultError()
       }
+    }
+  )
+
+  // 获取当前登录用户信息
+  fastify.get(
+    '/me',
+    {
+      schema: {
+        tags: ['auth'],
+        summary: '获取当前登录用户信息',
+        description: '获取当前登录用户的详细信息',
+        response: { 200: CustomResponseSchema },
+      },
+      preValidation: fastify.authenticate,
+    },
+    async (request, reply) => {
+      const userId = request.user.id
+
+      const user = await fastify.prisma.user.findUnique({
+        where: { id: userId },
+      })
+
+      if (!user) {
+        return reply.sendResponse({ ...buildErrorByCode(404), message: '用户不存在' })
+      }
+
+      return reply.sendResponse({
+        message: '获取成功',
+        data: pick(user, ['id', 'username', 'email', 'created_at']),
+      })
+    }
+  )
+
+  // 退出登录
+  fastify.post(
+    '/logout',
+    {
+      schema: {
+        tags: ['auth'],
+        summary: '退出登录',
+        description: '清除用户登录状态',
+        response: { 200: CustomResponseSchema },
+      },
+    },
+    async (request, reply) => {
+      reply.clearCookie('token', { path: '/' })
+
+      return reply.sendResponse({
+        message: '退出成功',
+      })
     }
   )
 }

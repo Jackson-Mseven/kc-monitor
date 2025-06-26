@@ -47,6 +47,8 @@ fastify.register(env, {
     properties: {
       POSTGRES_DATABASE_URL: { type: 'string' },
       CLICKHOUSE_DATABASE_URL: { type: 'string' },
+      COOKIE_SECRET: { type: 'string' },
+      JWT_SECRET: { type: 'string' },
     },
   },
   dotenv: true,
@@ -72,7 +74,7 @@ fastify.register(fastifyStatic, {
 })
 
 fastify.register(cookie, {
-  secret: 'my-secret',
+  secret: process.env.COOKIE_SECRET,
   hook: 'onRequest',
   parseOptions: {},
 })

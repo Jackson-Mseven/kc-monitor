@@ -13,5 +13,5 @@ export default function validErrorHandler(
       error: 'Validation Error',
     })
   }
-  reply.sendDefaultError()
+  return reply.sendDefaultError()
 }
