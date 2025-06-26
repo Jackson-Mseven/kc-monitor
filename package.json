@@ -46,7 +46,9 @@
   },
   "pnpm": {
     "overrides": {
-      "@kc-monitor/react": "link:packages/react"
+      "@kc-monitor/core": "link:packages/core",
+      "@kc-monitor/react": "link:packages/react",
+      "@kc-monitor/schema": "link:packages/schema"
     }
   }
 }

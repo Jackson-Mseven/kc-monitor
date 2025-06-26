@@ -1,11 +1,9 @@
 import { FastifyInstance } from 'fastify'
-import { ProjectSchema } from 'src/schema/project'
-import { UserProjectSchema } from 'src/schema/userProject'
-import { CustomResponseSchema } from 'src/schemas/response'
 import { Project, UserProject } from 'src/types/project'
 import validErrorHandler from 'src/utils/Error/validErrorHandler'
 import buildError from 'src/utils/prisma/buildError'
 import { z } from 'zod'
+import { ProjectSchema, UserProjectSchema, CustomResponseSchema } from '@kc-monitor/schema'
 
 interface Params {
   Project: Pick<Project, 'id'>

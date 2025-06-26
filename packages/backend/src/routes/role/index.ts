@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { CustomResponseSchema } from 'src/schemas/response'
+import { CustomResponseSchema } from '@kc-monitor/schema'
 import { Role } from 'src/types/role'
 import { z } from 'zod'
 

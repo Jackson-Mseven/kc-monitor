@@ -1,6 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import { EmailSchema, PasswordSchema, UserSchema } from 'src/schema/user'
-import { CustomResponseSchema } from 'src/schemas/response'
+import { EmailSchema, PasswordSchema, UserSchema, CustomResponseSchema } from '@kc-monitor/schema'
 import { User } from 'src/types/user'
 import buildErrorByCode from 'src/utils/Error/buildErrorByCode'
 import validErrorHandler from 'src/utils/Error/validErrorHandler'

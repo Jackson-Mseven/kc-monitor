@@ -1,10 +1,9 @@
 import { FastifyInstance } from 'fastify'
 import { User } from 'src/types/user'
 import buildError from 'src/utils/prisma/buildError'
-import { CustomResponseSchema } from 'src/schemas/response'
+import { UserSchema, CustomResponseSchema } from '@kc-monitor/schema'
 import { z } from 'zod'
 import validErrorHandler from 'src/utils/Error/validErrorHandler'
-import { UserSchema } from 'src/schema/user'
 
 type Params = Pick<User, 'id'>
 type Body = Pick<User, 'username' | 'password' | 'email'>
