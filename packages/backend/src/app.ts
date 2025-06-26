@@ -89,6 +89,9 @@ fastify.register(autoload, {
 
 fastify.register(autoload, {
   dir: path.join(__dirname, 'routes'),
+  options: {
+    prefix: '/api',
+  },
 })
 
 fastify.ready((err) => {
