@@ -3,9 +3,11 @@ import { User } from 'src/types/user'
 import buildError from 'src/utils/prisma/buildError'
 import { CustomResponseSchema } from 'src/schemas/response'
 import { z } from 'zod'
+import validErrorHandler from 'src/utils/Error/validErrorHandler'
+import { UserSchema } from 'src/schema/user'
 
 type Params = Pick<User, 'id'>
-type Querystring = Pick<User, 'username' | 'password' | 'email'>
+type Body = Pick<User, 'username' | 'password' | 'email'>
 
 export default async function (fastify: FastifyInstance) {
   // 获取所有用户
@@ -55,7 +57,7 @@ export default async function (fastify: FastifyInstance) {
 
   // 新增用户
   fastify.post<{
-    Body: Querystring
+    Body: Body
   }>(
     '/',
     {
@@ -64,40 +66,28 @@ export default async function (fastify: FastifyInstance) {
         summary: '新增用户',
         description: '新增用户',
         security: [{ apiKey: [] }],
-        body: z.object({
-          username: z.string(),
-          password: z.string(),
-          email: z.string(),
-        }),
+        body: UserSchema,
         response: { 201: CustomResponseSchema },
       },
+      errorHandler: validErrorHandler,
     },
     async (request, reply) => {
-      const { username, password, email } = request.body
-      if (!username || !password || !email) {
-        console.log(reply.sendResponse)
-
-        return reply.sendResponse({ code: 400, message: '缺少必须的参数' })
-      }
-
       try {
+        const hashedPassword = await fastify.bcrypt.hash(request.body.password)
         const user = await fastify.prisma.user.create({
-          data: request.body,
+          data: {
+            ...request.body,
+            password: hashedPassword,
+          },
         })
-        console.log(user)
-        console.log(reply.sendResponse)
         return reply.sendResponse({ code: 201, data: user })
       } catch (error: any) {
         if (error.code === 'P2002') {
           const response = buildError(error.code, {
             message: '邮箱已经存在',
           })
-          console.log(response)
-          console.log(reply.sendResponse)
           return reply.sendResponse({ code: response?.code as number, ...response?.data })
         }
-        console.log(error)
-        console.log(reply.sendDefaultError)
         return reply.sendDefaultError()
       }
     }
@@ -106,7 +96,7 @@ export default async function (fastify: FastifyInstance) {
   // 修改用户信息
   fastify.put<{
     Params: Params
-    Querystring: Querystring
+    Body: Body
   }>(
     '/:id',
     {
@@ -118,26 +108,21 @@ export default async function (fastify: FastifyInstance) {
         params: z.object({
           id: z.string(),
         }),
-        querystring: z.object({
-          username: z.string().optional(),
-          password: z.string().optional(),
-          email: z.string().optional(),
-        }),
+        body: UserSchema,
         response: { 200: CustomResponseSchema },
       },
+      errorHandler: validErrorHandler,
     },
     async (request, reply) => {
       const { id } = request.params
-      const { username, password, email } = request.query
-
-      if (!username && !password && !email) {
-        return reply.sendResponse({ code: 400, message: '没有要更新的字段' })
-      }
-
       try {
+        const updateData = request.body
+        if (request.body.password) {
+          updateData.password = await fastify.bcrypt.hash(request.body.password)
+        }
         const user = await fastify.prisma.user.update({
           where: { id: Number(id) },
-          data: request.query,
+          data: updateData,
         })
         return reply.sendResponse({ data: user })
       } catch (error: any) {

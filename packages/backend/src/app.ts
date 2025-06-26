@@ -15,6 +15,7 @@ import multer from 'fastify-multer'
 import cors from '@fastify/cors'
 import fastifyStatic from '@fastify/static'
 import cookie from '@fastify/cookie'
+import bcrypt from 'fastify-bcrypt'
 
 const fastify = Fastify({
   logger,
@@ -74,6 +75,10 @@ fastify.register(cookie, {
   secret: 'my-secret',
   hook: 'onRequest',
   parseOptions: {},
+})
+
+fastify.register(bcrypt, {
+  saltWorkFactor: 12,
 })
 
 fastify.register(autoload, {

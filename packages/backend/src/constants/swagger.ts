@@ -21,6 +21,7 @@ export const SWAGGER_OPTIONS: FastifyRegisterOptions<SwaggerOptions> = {
       { name: 'user', description: 'User related end-points' },
       { name: 'role', description: 'Role related end-points' },
       { name: 'project', description: 'Project related end-points' },
+      { name: 'auth', description: 'Auth related end-points' },
     ],
     components: {
       securitySchemes: {
