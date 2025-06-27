@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { CustomResponseSchema } from '@kc-monitor/schema'
+import { CustomResponseSchema, IDSchema } from '@kc-monitor/shared'
 import { Role } from 'src/types/role'
 import { z } from 'zod'
 
@@ -39,7 +39,7 @@ export default async function (fastify: FastifyInstance) {
         description: '查询指定 id 的角色',
         security: [{ apiKey: [] }],
         params: z.object({
-          id: z.string(),
+          id: IDSchema,
         }),
         response: {
           200: CustomResponseSchema,

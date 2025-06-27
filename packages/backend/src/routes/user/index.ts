@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { User } from 'src/types/user'
 import buildError from 'src/utils/prisma/buildError'
-import { UserSchema, CustomResponseSchema } from '@kc-monitor/schema'
+import { UserSchema, CustomResponseSchema, IDSchema } from '@kc-monitor/shared'
 import { z } from 'zod'
 import validErrorHandler from 'src/utils/Error/validErrorHandler'
 
@@ -39,7 +39,7 @@ export default async function (fastify: FastifyInstance) {
         description: '获取单个用户',
         security: [{ apiKey: [] }],
         params: z.object({
-          id: z.string(),
+          id: IDSchema,
         }),
         response: { 200: CustomResponseSchema },
       },
@@ -105,7 +105,7 @@ export default async function (fastify: FastifyInstance) {
         description: '修改用户信息',
         security: [{ apiKey: [] }],
         params: z.object({
-          id: z.string(),
+          id: IDSchema,
         }),
         body: UserSchema.partial().refine((data) => Object.keys(data).length > 0, {
           message: '没有要更改的用户数据',
@@ -156,7 +156,7 @@ export default async function (fastify: FastifyInstance) {
         description: '删除用户',
         security: [{ apiKey: [] }],
         params: z.object({
-          id: z.string(),
+          id: IDSchema,
         }),
         response: { 200: CustomResponseSchema },
       },

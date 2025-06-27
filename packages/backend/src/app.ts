@@ -43,12 +43,25 @@ fastify.setErrorHandler(function (error, request, reply) {
 fastify.register(env, {
   schema: {
     type: 'object',
-    required: ['POSTGRES_DATABASE_URL', 'CLICKHOUSE_DATABASE_URL'],
+    required: [
+      'POSTGRES_DATABASE_URL',
+      'CLICKHOUSE_DATABASE_URL',
+      'REDIS_URL',
+      'COOKIE_SECRET',
+      'JWT_SECRET',
+      'EMAIL_USER',
+      'EMAIL_PASS',
+    ],
     properties: {
+      PORT: { type: 'number', default: 8080 },
+      HOST: { type: 'string', default: '0.0.0.0' },
       POSTGRES_DATABASE_URL: { type: 'string' },
       CLICKHOUSE_DATABASE_URL: { type: 'string' },
+      REDIS_URL: { type: 'string' },
       COOKIE_SECRET: { type: 'string' },
       JWT_SECRET: { type: 'string' },
+      EMAIL_USER: { type: 'string' },
+      EMAIL_PASS: { type: 'string' },
     },
   },
   dotenv: true,
@@ -65,7 +78,7 @@ fastify.register(formbody)
 fastify.register(multer.contentParser)
 
 fastify.register(cors, {
-  origin: false,
+  origin: '*',
 })
 
 fastify.register(fastifyStatic, {

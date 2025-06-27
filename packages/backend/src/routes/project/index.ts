@@ -3,7 +3,12 @@ import { Project, UserProject } from 'src/types/project'
 import validErrorHandler from 'src/utils/Error/validErrorHandler'
 import buildError from 'src/utils/prisma/buildError'
 import { z } from 'zod'
-import { ProjectSchema, UserProjectSchema, CustomResponseSchema } from '@kc-monitor/schema'
+import {
+  ProjectSchema,
+  UserProjectSchema,
+  CustomResponseSchema,
+  IDSchema,
+} from '@kc-monitor/shared'
 
 interface Params {
   Project: Pick<Project, 'id'>
@@ -45,7 +50,7 @@ export default async function (fastify: FastifyInstance) {
         summary: '获取单个项目',
         description: '获取单个项目',
         params: z.object({
-          id: z.string(),
+          id: IDSchema,
         }),
         response: { 200: CustomResponseSchema },
       },
@@ -138,7 +143,7 @@ export default async function (fastify: FastifyInstance) {
         summary: '删除项目',
         description: '删除项目',
         params: z.object({
-          id: z.string(),
+          id: IDSchema,
         }),
         response: { 200: CustomResponseSchema },
       },
@@ -237,8 +242,8 @@ export default async function (fastify: FastifyInstance) {
         summary: '移除用户出项目',
         description: '移除用户出项目',
         params: z.object({
-          id: z.string(),
-          user_id: z.string(),
+          id: IDSchema,
+          user_id: IDSchema,
         }),
         response: { 200: CustomResponseSchema },
       },

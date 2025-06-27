@@ -7,13 +7,18 @@
   "cSpell.words": [
     "autoincrement",
     "clickhouse",
+    "commitizen",
+    "commitlint",
     "eslintcache",
+    "fastify",
     "formbody",
     "kafkajs",
     "kcmonitor",
     "kincy",
+    "multer",
     "nxcache",
     "rkey",
+    "sonner",
     "ttfb",
     "ukey",
     "uuidv"
@@ -26,5 +31,8 @@
   },
   "[plaintext]": {
     "editor.defaultFormatter": "lkrms.inifmt"
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml"
   }
 }

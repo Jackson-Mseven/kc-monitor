@@ -1,15 +1,25 @@
 import { FastifyInstance } from 'fastify'
-import { EmailSchema, PasswordSchema, UserSchema, CustomResponseSchema } from '@kc-monitor/schema'
+import {
+  CustomResponseSchema,
+  SendCodeSchema,
+  LoginSchema,
+  RegisterSchema,
+  ForgetPasswordSchema,
+  ResetPasswordSchema,
+  pick,
+  CodeTypeValues,
+} from '@kc-monitor/shared'
 import { User } from 'src/types/user'
 import buildErrorByCode from 'src/utils/Error/buildErrorByCode'
 import validErrorHandler from 'src/utils/Error/validErrorHandler'
-import pick from 'src/utils/pick'
 import buildError from 'src/utils/prisma/buildError'
-import { z } from 'zod'
 
 interface Body {
   Login: Pick<User, 'email' | 'password'>
-  Register: Pick<User, 'username' | 'email' | 'password'>
+  Register: Pick<User, 'username' | 'email' | 'password'> & { code: string }
+  SendCode: Pick<User, 'email'> & { type: CodeTypeValues }
+  ForgetPassword: Pick<User, 'email'>
+  ResetPassword: { token: string; newPassword: string }
 }
 
 export default async function (fastify: FastifyInstance) {
@@ -23,10 +33,7 @@ export default async function (fastify: FastifyInstance) {
         tags: ['auth'],
         summary: '用户登录',
         description: '通过邮箱和密码登录',
-        body: z.object({
-          email: EmailSchema,
-          password: PasswordSchema,
-        }),
+        body: LoginSchema,
         response: { 200: CustomResponseSchema },
       },
       errorHandler: validErrorHandler,
@@ -48,17 +55,9 @@ export default async function (fastify: FastifyInstance) {
         return reply.sendResponse({ ...buildErrorByCode(401), message: '密码错误' })
       }
 
-      const token = fastify.jwt.sign(
-        {
-          id: user.id,
-          email: user.email,
-          username: user.username,
-        },
-        {
-          expiresIn: '7d',
-        }
-      )
-      console.log('token---', token)
+      const token = fastify.jwt.sign(pick(user, ['id', 'email', 'username']), {
+        expiresIn: '7d',
+      })
 
       reply.setCookie('token', token, {
         path: '/',
@@ -88,13 +87,19 @@ export default async function (fastify: FastifyInstance) {
         tags: ['auth'],
         summary: '用户注册',
         description: '通过用户名、邮箱和密码注册新用户',
-        body: UserSchema,
+        body: RegisterSchema,
         response: { 201: CustomResponseSchema },
       },
       errorHandler: validErrorHandler,
     },
     async (request, reply) => {
-      const { username, email, password } = request.body
+      const { username, email, password, code } = request.body
+
+      const savedCode = await fastify.redis.get(`verify:email:register:${email}`)
+
+      if (!savedCode || savedCode !== code) {
+        return reply.sendResponse({ ...buildErrorByCode(400), message: '无效或过期的验证码' })
+      }
 
       const existingUser = await fastify.prisma.user.findUnique({
         where: { email },
@@ -113,16 +118,9 @@ export default async function (fastify: FastifyInstance) {
           },
         })
 
-        const token = fastify.jwt.sign(
-          {
-            id: user.id,
-            email: user.email,
-            username: user.username,
-          },
-          {
-            expiresIn: '7d',
-          }
-        )
+        const token = fastify.jwt.sign(pick(user, ['id', 'email', 'username']), {
+          expiresIn: '7d',
+        })
 
         reply.setCookie('token', token, {
           path: '/',
@@ -131,6 +129,8 @@ export default async function (fastify: FastifyInstance) {
           secure: process.env.NODE_ENV === 'production',
           maxAge: 7 * 24 * 60 * 60,
         })
+
+        await fastify.redis.del(`verify:email:${email}`)
 
         return reply.sendResponse({
           code: 201,
@@ -199,6 +199,128 @@ export default async function (fastify: FastifyInstance) {
       return reply.sendResponse({
         message: '退出成功',
       })
+    }
+  )
+
+  // 发送验证码
+  fastify.post<{
+    Body: Body['SendCode']
+  }>(
+    '/send-code',
+    {
+      schema: {
+        tags: ['auth'],
+        summary: '发送验证码',
+        description: '发送验证码到用户邮箱',
+        body: SendCodeSchema,
+        response: { 200: CustomResponseSchema },
+      },
+      errorHandler: validErrorHandler,
+    },
+    async (request, reply) => {
+      const { email, type } = request.body
+
+      // 线上环境限制发送频率
+      if (process.env.NODE_ENV === 'production') {
+        const limitKey = `verify:limit:${type}:${email}`
+        const count = await fastify.redis.incr(limitKey)
+        if (count === 1) {
+          await fastify.redis.expire(limitKey, 60 * 60 * 24)
+        }
+        if (count > 5) {
+          return reply.code(429).send({ message: '发送频率过高' })
+        }
+      }
+
+      const code = Math.floor(100000 + Math.random() * 900000).toString()
+
+      await fastify.mailer.sendMail({
+        from: `"KC-Monitor" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: 'KC-Monitor 验证码',
+        text: `您的验证码是: ${code}`,
+      })
+
+      await fastify.redis.set(`verify:email:${type}:${email}`, code, 'EX', 60 * 5)
+
+      return reply.sendResponse({
+        message: '验证码发送成功',
+      })
+    }
+  )
+
+  // 忘记密码接口
+  fastify.post<{
+    Body: Body['ForgetPassword']
+  }>(
+    '/forgot-password',
+    {
+      schema: {
+        tags: ['auth'],
+        summary: '忘记密码',
+        description: '通过邮箱验证码重置密码',
+        body: ForgetPasswordSchema,
+        response: { 200: CustomResponseSchema },
+      },
+      errorHandler: validErrorHandler,
+    },
+    async (request, reply) => {
+      const { email } = request.body
+
+      const user = await fastify.prisma.user.findUnique({ where: { email } })
+      if (!user) {
+        return reply.send({ message: '邮箱不存在' })
+      }
+
+      const token = fastify.jwt.sign(pick(user, ['id', 'email', 'username']), {
+        expiresIn: '15m',
+      })
+
+      const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`
+
+      await fastify.mailer.sendMail({
+        from: `"KC-Monitor" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: '重置密码链接',
+        html: `<p>点击以下链接重置密码，15分钟内有效：</p>
+               <a href="${resetLink}">${resetLink}</a>`,
+      })
+
+      return reply.sendResponse({
+        message: '密码重置邮件已发送',
+      })
+    }
+  )
+
+  // 重置密码接口
+  fastify.post<{ Body: Body['ResetPassword'] }>(
+    '/reset-password',
+    {
+      schema: {
+        tags: ['auth'],
+        summary: '重置密码',
+        description: '通过邮箱验证码重置密码',
+        body: ResetPasswordSchema,
+        response: { 200: CustomResponseSchema },
+      },
+    },
+    async (req, reply) => {
+      const { token, newPassword } = req.body
+
+      try {
+        const payload = fastify.jwt.verify(token) satisfies { id: string }
+
+        const hashed = await fastify.bcrypt.hash(newPassword)
+
+        await fastify.prisma.user.update({
+          where: { id: Number(payload.id) },
+          data: { password: hashed },
+        })
+
+        return reply.sendResponse({ message: '密码已重置成功' })
+      } catch (err) {
+        return reply.sendResponse({ ...buildErrorByCode(400), message: '链接无效或已过期' })
+      }
     }
   )
 }

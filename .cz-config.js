@@ -1,4 +1,3 @@
-// .cz-config.js
 module.exports = {
   types: [
     { value: 'feat', name: 'feat:     新功能' },
@@ -9,7 +8,14 @@ module.exports = {
     { value: 'test', name: 'test:     添加测试' },
     { value: 'chore', name: 'chore:    构建过程或辅助工具变更' },
   ],
-  scopes: [{ name: 'entry' }, { name: 'core' }, { name: 'react' }, { name: 'backend' }],
+  scopes: [
+    { name: 'entry' },
+    { name: 'core' },
+    { name: 'react' },
+    { name: 'backend' },
+    { name: 'dashboard' },
+    { name: 'shared' },
+  ],
   scopeOverrides: {},
   allowCustomScopes: false, // 关闭手动输入，只允许选择
   allowBreakingChanges: ['feat', 'fix'],
