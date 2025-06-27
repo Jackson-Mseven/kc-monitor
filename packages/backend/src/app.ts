@@ -14,7 +14,6 @@ import formbody from '@fastify/formbody'
 import multer from 'fastify-multer'
 import cors from '@fastify/cors'
 import fastifyStatic from '@fastify/static'
-import cookie from '@fastify/cookie'
 import bcrypt from 'fastify-bcrypt'
 
 const fastify = Fastify({
@@ -78,18 +77,13 @@ fastify.register(formbody)
 fastify.register(multer.contentParser)
 
 fastify.register(cors, {
-  origin: '*',
+  origin: 'http://localhost:3000',
+  credentials: true,
 })
 
 fastify.register(fastifyStatic, {
   root: path.join(__dirname, 'public'),
   prefix: '/',
-})
-
-fastify.register(cookie, {
-  secret: process.env.COOKIE_SECRET,
-  hook: 'onRequest',
-  parseOptions: {},
 })
 
 fastify.register(bcrypt, {

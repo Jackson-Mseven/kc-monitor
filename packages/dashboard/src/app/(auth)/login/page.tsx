@@ -21,17 +21,18 @@ import {
 } from '@/components/ui/form'
 import { postFetcher } from '@/utils/fetcher'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false)
-
+  const router = useRouter()
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
   })
 
   const handleSubmit = async (values: z.infer<typeof LoginSchema>) => {
-    console.log(values)
     const response = await postFetcher('/auth/login', {
+      credentials: 'include',
       body: values,
     })
     if (response.code !== 200 && !response.data) {
@@ -39,6 +40,7 @@ const LoginPage = () => {
       return
     }
     toast.success(response.message)
+    router.push('/dashboard')
   }
 
   return (

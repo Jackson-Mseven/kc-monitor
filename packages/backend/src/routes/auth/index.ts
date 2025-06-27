@@ -60,10 +60,10 @@ export default async function (fastify: FastifyInstance) {
       })
 
       reply.setCookie('token', token, {
-        path: '/',
         httpOnly: true,
-        sameSite: 'strict',
-        secure: process.env.NODE_ENV === 'production',
+        secure: false,
+        sameSite: 'lax',
+        path: '/',
         maxAge: 7 * 24 * 60 * 60,
       })
 
