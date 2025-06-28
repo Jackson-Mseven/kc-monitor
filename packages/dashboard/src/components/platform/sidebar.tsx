@@ -54,14 +54,14 @@ const insightsItems = [
 
 const settingsItems = [
   {
-    title: 'Team Settings',
-    url: '/settings/teams',
-    icon: Users,
-  },
-  {
     title: 'User Settings',
     url: '/settings/user',
     icon: User,
+  },
+  {
+    title: 'Team Settings',
+    url: '/settings/teams',
+    icon: Users,
   },
 ]
 
@@ -69,7 +69,7 @@ export default function PlatformSidebar() {
   const pathname = usePathname()
   const router = useRouter()
 
-  const { user, isLoading, error, refetch } = useUserInfo()
+  const { user, isLoading, error } = useUserInfo()
 
   if (isLoading) return <Skeleton className="h-10 w-full" />
   if (error) {

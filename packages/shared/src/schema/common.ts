@@ -19,3 +19,9 @@ export const generateSlugSchema = (name: string) => {
       message: `${name}标识不能以中横线开头或结尾`,
     })
 }
+
+export function makeAtLeastOneField<T extends z.ZodRawShape>(schema: z.ZodObject<T>) {
+  return schema.partial().refine((data) => Object.values(data).some((v) => v !== undefined), {
+    message: '更新内容不能为空',
+  })
+}

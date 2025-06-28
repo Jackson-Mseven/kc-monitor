@@ -79,6 +79,8 @@ fastify.register(multer.contentParser)
 fastify.register(cors, {
   origin: 'http://localhost:3000',
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 })
 
 fastify.register(fastifyStatic, {

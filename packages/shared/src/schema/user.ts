@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { generateNameSchema, IDSchema } from './common'
+import { generateNameSchema, IDSchema, makeAtLeastOneField } from './common'
 
 export const UsernameSchema = generateNameSchema('用户名')
 
@@ -22,3 +22,5 @@ export const UserSchema = z.object({
 export const UserParamsSchema = z.object({
   id: IDSchema,
 })
+
+export const UserUpdateSchema = makeAtLeastOneField(UserSchema.pick({ name: true, password: true }))

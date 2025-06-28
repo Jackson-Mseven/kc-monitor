@@ -1,7 +1,11 @@
 import { FastifyInstance } from 'fastify'
 import { User } from 'src/types/user'
-import { UserSchema, CustomResponseSchema, IDSchema, UserParamsSchema } from '@kc-monitor/shared'
-import { z } from 'zod'
+import {
+  UserSchema,
+  CustomResponseSchema,
+  UserParamsSchema,
+  UserUpdateSchema,
+} from '@kc-monitor/shared'
 import validErrorHandler from 'src/utils/error/validErrorHandler'
 import generateReadHandler from 'src/utils/handler/generateReadHandler'
 import generateReadByIdHandler from 'src/utils/handler/generateReadByIdHandler'
@@ -46,9 +50,7 @@ export default async function (fastify: FastifyInstance) {
         tags: ['user'],
         summary: '获取单个用户',
         description: '获取单个用户',
-        params: z.object({
-          id: IDSchema,
-        }),
+        params: UserParamsSchema,
         response: { 200: CustomResponseSchema },
       },
     },
@@ -95,9 +97,7 @@ export default async function (fastify: FastifyInstance) {
         summary: '修改用户信息',
         description: '修改用户信息',
         params: UserParamsSchema,
-        body: UserSchema.partial().refine((data) => Object.keys(data).length > 0, {
-          message: '更新内容不能为空',
-        }),
+        body: UserUpdateSchema,
         response: { 200: CustomResponseSchema },
       },
       errorHandler: validErrorHandler,
@@ -108,7 +108,9 @@ export default async function (fastify: FastifyInstance) {
       notFoundMessage: '用户不存在',
       uniqueMessage: '邮箱已经存在',
       additionalData: async (request) => ({
-        password: await fastify.bcrypt.hash(request.body.password),
+        password: request.body.password
+          ? await fastify.bcrypt.hash(request.body.password)
+          : undefined,
       }),
     })
   )
