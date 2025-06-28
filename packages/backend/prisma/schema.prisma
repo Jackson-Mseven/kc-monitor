@@ -7,34 +7,100 @@ datasource db {
   url      = env("POSTGRES_DATABASE_URL")
 }
 
-model project {
-  id           Int            @id @default(autoincrement())
-  name         String
-  created_at   DateTime?      @default(now()) @db.Timestamp(6)
-  user_project user_project[]
+/// This table has subclasses and requires additional setup for migrations. Visit https://pris.ly/d/table-inheritance for more info.
+model base_entity {
+  id         Int      @id(map: "entity_pkey") @default(autoincrement())
+  uuid       String   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamp(6)
+
+  @@ignore
 }
 
-model user {
-  id           Int            @id @default(autoincrement())
-  username     String
-  password     String
-  email        String         @unique(map: "email_ukey")
-  created_at   DateTime?      @default(now()) @db.Timestamp(6)
-  user_project user_project[]
-}
-
-model user_project {
-  id         Int      @id @default(autoincrement())
-  user_id    Int
-  project_id Int
-  joined_at  DateTime @default(now()) @db.Timestamp(6)
-  role_id    Int
-  project    project  @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "project_id_rkey")
-  user       user     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id_rkey")
-}
-
-model role {
-  id          Int     @id @default(autoincrement())
-  name        String
+/// This table has subclasses and requires additional setup for migrations. Visit https://pris.ly/d/table-inheritance for more info.
+model base_roles {
+  id          Int     @id(map: "roles_id_pkey") @default(autoincrement())
+  uuid        String  @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String  @unique(map: "roles_name_ukey")
   description String?
+  permissions Json
+
+  @@ignore
+}
+
+model project_members {
+  id            Int           @id @default(autoincrement())
+  uuid          String        @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at    DateTime      @default(now()) @db.Timestamp(6)
+  user_id       Int
+  project_id    Int
+  role_id       Int
+  projects      projects      @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "project_id_pkey")
+  project_roles project_roles @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "role_id_pkey")
+  users         users         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_id_pkey")
+
+  @@unique([user_id, project_id], map: "project_members_ukey")
+}
+
+model project_roles {
+  id              Int               @id @default(autoincrement())
+  uuid            String            @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  description     String?
+  permissions     Json
+  project_members project_members[]
+}
+
+model projects {
+  id              Int               @id @default(autoincrement())
+  uuid            String            @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at      DateTime          @default(now()) @db.Timestamp(6)
+  team_id         Int
+  name            String
+  slug            String            @unique(map: "projects_slug_ukey")
+  project_members project_members[]
+  teams           teams             @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "team_id_pkey")
+}
+
+model team_members {
+  id          Int        @id @default(autoincrement())
+  uuid        String     @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at  DateTime   @default(now()) @db.Timestamp(6)
+  user_id     Int
+  team_id     Int
+  role_id     Int
+  teams_roles team_roles @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "role_id_pkey")
+  teams       teams      @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "team_id_pkey")
+  users       users      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_id_pkey")
+
+  @@unique([user_id, team_id], map: "team_members_ukey")
+}
+
+model teams {
+  id           Int            @id @default(autoincrement())
+  uuid         String         @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at   DateTime       @default(now()) @db.Timestamp(6)
+  name         String
+  slug         String         @unique(map: "teams_slug_ukey")
+  projects     projects[]
+  team_members team_members[]
+}
+
+model users {
+  id              Int               @id @default(autoincrement())
+  uuid            String            @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at      DateTime          @default(now()) @db.Timestamp(6)
+  name            String
+  email           String            @unique(map: "users_email_ukey")
+  password        String
+  project_members project_members[]
+  team_members    team_members[]
+}
+
+model team_roles {
+  id           Int            @id(map: "teams_roles_pkey") @default(autoincrement())
+  uuid         String         @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  description  String?
+  permissions  Json
+  team_members team_members[]
 }

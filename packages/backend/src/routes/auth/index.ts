@@ -10,16 +10,24 @@ import {
   CodeTypeValues,
 } from '@kc-monitor/shared'
 import { User } from 'src/types/user'
-import buildErrorByCode from 'src/utils/Error/buildErrorByCode'
-import validErrorHandler from 'src/utils/Error/validErrorHandler'
-import buildError from 'src/utils/prisma/buildError'
+import buildErrorByCode from 'src/utils/error/buildErrorByCode'
+import validErrorHandler from 'src/utils/error/validErrorHandler'
+import buildError from 'src/utils/prisma/buildPrismaError'
+import { JwtPayload } from 'src/types/jwt'
 
 interface Body {
   Login: Pick<User, 'email' | 'password'>
-  Register: Pick<User, 'username' | 'email' | 'password'> & { code: string }
+  Register: Pick<User, 'name' | 'email' | 'password'> & { code: string }
   SendCode: Pick<User, 'email'> & { type: CodeTypeValues }
   ForgetPassword: Pick<User, 'email'>
   ResetPassword: { token: string; newPassword: string }
+}
+
+const transformUserToJwtPayload = (user: User): JwtPayload => {
+  return {
+    ...pick(user, ['id', 'email']),
+    username: user.name,
+  }
 }
 
 export default async function (fastify: FastifyInstance) {
@@ -41,7 +49,7 @@ export default async function (fastify: FastifyInstance) {
     async (request, reply) => {
       const { email, password } = request.body
 
-      const user = await fastify.prisma.user.findUnique({
+      const user = await fastify.prisma.users.findUnique({
         where: { email },
       })
 
@@ -55,7 +63,7 @@ export default async function (fastify: FastifyInstance) {
         return reply.sendResponse({ ...buildErrorByCode(401), message: '密码错误' })
       }
 
-      const token = fastify.jwt.sign(pick(user, ['id', 'email', 'username']), {
+      const token = fastify.jwt.sign(transformUserToJwtPayload(user), {
         expiresIn: '7d',
       })
 
@@ -70,7 +78,7 @@ export default async function (fastify: FastifyInstance) {
       return reply.sendResponse({
         message: '登录成功',
         data: {
-          ...pick(user, ['id', 'username', 'email']),
+          ...pick(user, ['id', 'name', 'email']),
           token,
         },
       })
@@ -93,7 +101,7 @@ export default async function (fastify: FastifyInstance) {
       errorHandler: validErrorHandler,
     },
     async (request, reply) => {
-      const { username, email, password, code } = request.body
+      const { name, email, password, code } = request.body
 
       const savedCode = await fastify.redis.get(`verify:email:register:${email}`)
 
@@ -101,7 +109,7 @@ export default async function (fastify: FastifyInstance) {
         return reply.sendResponse({ ...buildErrorByCode(400), message: '无效或过期的验证码' })
       }
 
-      const existingUser = await fastify.prisma.user.findUnique({
+      const existingUser = await fastify.prisma.users.findUnique({
         where: { email },
       })
       if (existingUser) {
@@ -110,15 +118,15 @@ export default async function (fastify: FastifyInstance) {
 
       try {
         const hashedPassword = await fastify.bcrypt.hash(password)
-        const user = await fastify.prisma.user.create({
+        const user = await fastify.prisma.users.create({
           data: {
-            username,
+            name,
             email,
             password: hashedPassword,
           },
         })
 
-        const token = fastify.jwt.sign(pick(user, ['id', 'email', 'username']), {
+        const token = fastify.jwt.sign(transformUserToJwtPayload(user), {
           expiresIn: '7d',
         })
 
@@ -136,7 +144,7 @@ export default async function (fastify: FastifyInstance) {
           code: 201,
           message: '注册成功',
           data: {
-            ...pick(user, ['id', 'username', 'email']),
+            ...pick(user, ['id', 'name', 'email']),
             token,
           },
         })
@@ -145,7 +153,7 @@ export default async function (fastify: FastifyInstance) {
           const response = buildError(error.code, {
             message: '用户已存在',
           })
-          return reply.sendResponse({ code: response?.code as number, ...response?.data })
+          return reply.sendResponse({ code: response?.code, ...response?.data })
         }
         return reply.sendDefaultError()
       }
@@ -167,7 +175,7 @@ export default async function (fastify: FastifyInstance) {
     async (request, reply) => {
       const userId = request.user.id
 
-      const user = await fastify.prisma.user.findUnique({
+      const user = await fastify.prisma.users.findUnique({
         where: { id: userId },
       })
 
@@ -177,7 +185,7 @@ export default async function (fastify: FastifyInstance) {
 
       return reply.sendResponse({
         message: '获取成功',
-        data: pick(user, ['id', 'username', 'email', 'created_at']),
+        data: pick(user, ['id', 'name', 'email', 'created_at']),
       })
     }
   )
@@ -235,9 +243,9 @@ export default async function (fastify: FastifyInstance) {
       const code = Math.floor(100000 + Math.random() * 900000).toString()
 
       await fastify.mailer.sendMail({
-        from: `"KC-Monitor" <${process.env.EMAIL_USER}>`,
+        from: `"${process.env.PROJECT_NAME}" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: 'KC-Monitor 验证码',
+        subject: `${process.env.PROJECT_NAME} 验证码`,
         text: `您的验证码是: ${code}`,
       })
 
@@ -267,19 +275,19 @@ export default async function (fastify: FastifyInstance) {
     async (request, reply) => {
       const { email } = request.body
 
-      const user = await fastify.prisma.user.findUnique({ where: { email } })
+      const user = await fastify.prisma.users.findUnique({ where: { email } })
       if (!user) {
         return reply.send({ message: '邮箱不存在' })
       }
 
-      const token = fastify.jwt.sign(pick(user, ['id', 'email', 'username']), {
+      const token = fastify.jwt.sign(transformUserToJwtPayload(user), {
         expiresIn: '15m',
       })
 
       const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`
 
       await fastify.mailer.sendMail({
-        from: `"KC-Monitor" <${process.env.EMAIL_USER}>`,
+        from: `"${process.env.PROJECT_NAME}" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: '重置密码链接',
         html: `<p>点击以下链接重置密码，15分钟内有效：</p>
@@ -304,21 +312,21 @@ export default async function (fastify: FastifyInstance) {
         response: { 200: CustomResponseSchema },
       },
     },
-    async (req, reply) => {
-      const { token, newPassword } = req.body
+    async (request, reply) => {
+      const { token, newPassword } = request.body
 
       try {
         const payload = fastify.jwt.verify(token) satisfies { id: string }
 
         const hashed = await fastify.bcrypt.hash(newPassword)
 
-        await fastify.prisma.user.update({
+        await fastify.prisma.users.update({
           where: { id: Number(payload.id) },
           data: { password: hashed },
         })
 
         return reply.sendResponse({ message: '密码已重置成功' })
-      } catch (err) {
+      } catch (error) {
         return reply.sendResponse({ ...buildErrorByCode(400), message: '链接无效或已过期' })
       }
     }

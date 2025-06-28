@@ -1,3 +1,5 @@
+import { DEFAULT_ERROR } from 'src/constants/error'
+
 export default function (
   prismaCode: string,
   options?: { code?: number; error?: string; message?: string }
@@ -220,6 +222,12 @@ export default function (
         },
       }
     default:
-      return
+      return {
+        code: options?.code ?? DEFAULT_ERROR.CODE,
+        data: {
+          error: options?.error ?? DEFAULT_ERROR.DATA.ERROR,
+          message: options?.message ?? DEFAULT_ERROR.DATA.MESSAGE,
+        },
+      }
   }
 }

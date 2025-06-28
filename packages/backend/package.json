@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' -r tsconfig-paths/register src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "prisma:pull": "npx prisma db pull",
+    "prisma:generate": "npx prisma generate"
   },
   "keywords": [],
   "author": "",

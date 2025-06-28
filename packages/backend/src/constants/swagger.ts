@@ -18,20 +18,11 @@ export const SWAGGER_OPTIONS: FastifyRegisterOptions<SwaggerOptions> = {
       },
     ],
     tags: [
-      { name: 'user', description: 'User related end-points' },
+      { name: 'users', description: 'User related end-points' },
       { name: 'role', description: 'Role related end-points' },
       { name: 'project', description: 'Project related end-points' },
       { name: 'auth', description: 'Auth related end-points' },
     ],
-    components: {
-      securitySchemes: {
-        apiKey: {
-          type: 'apiKey',
-          name: 'apiKey',
-          in: 'header',
-        },
-      },
-    },
     externalDocs: {
       url: 'https://swagger.io',
       description: 'Find more info here',

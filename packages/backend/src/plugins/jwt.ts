@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin'
 import jwt from '@fastify/jwt'
-import buildErrorByCode from 'src/utils/Error/buildErrorByCode'
+import buildErrorByCode from 'src/utils/error/buildErrorByCode'
 import { JwtPayload } from 'src/types/jwt'
 
 declare module 'fastify' {
