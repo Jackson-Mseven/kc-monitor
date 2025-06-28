@@ -42,14 +42,14 @@ const insightsItems = [
 
 const settingsItems = [
   {
+    title: 'Team Settings',
+    url: '/settings/teams',
+    icon: Users,
+  },
+  {
     title: 'User Settings',
     url: '/settings/user',
     icon: User,
-  },
-  {
-    title: 'Team Settings',
-    url: '/settings/team',
-    icon: Users,
   },
 ]
 
@@ -67,7 +67,7 @@ export default function PlatformSidebar() {
                   <BarChart3 className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Sentry Platform</span>
+                  <span className="truncate font-semibold">KC-Monitor Platform</span>
                   <span className="truncate text-xs">Error Monitoring</span>
                 </div>
               </Link>
