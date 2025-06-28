@@ -34,10 +34,10 @@ const RegisterPage = () => {
 
   const handleSubmit = async (values: z.infer<typeof RegisterFormSchema>) => {
     const response = await postFetcher('/auth/register', {
-      body: pick(values, ['username', 'email', 'password', 'code']),
+      body: pick(values, ['name', 'email', 'password', 'code']),
     })
     if (response.code === 200) {
-      toast.success('注册成功')
+      toast.success('Registration is successful')
       router.push('/login')
     } else {
       toast.error(response.message)
@@ -55,12 +55,12 @@ const RegisterPage = () => {
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="username"
+              name="name"
               render={({ field }) => (
                 <FormItem className="space-y-2">
-                  <FormLabel htmlFor="username">Username</FormLabel>
+                  <FormLabel htmlFor="name">Username</FormLabel>
                   <FormControl>
-                    <Input id="username" placeholder="Kincy" required className="h-11" {...field} />
+                    <Input id="name" placeholder="Kincy" required className="h-11" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

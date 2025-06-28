@@ -25,7 +25,7 @@ const ForgotPasswordForm = () => {
       body: values,
     })
     if (response.code === 200) {
-      toast.success('密码重置邮件已发送')
+      toast.success('A password reset email has been sent')
     } else {
       toast.error(response.message)
     }

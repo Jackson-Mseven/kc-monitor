@@ -36,7 +36,7 @@ export default function ResetPassword() {
       body: { token, ...values },
     })
     if (response.code === 200) {
-      toast.success('密码重置成功')
+      toast.success('Password reset successfully')
     } else {
       toast.error(response.message)
     }
