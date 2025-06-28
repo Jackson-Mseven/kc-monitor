@@ -207,6 +207,9 @@ importers:
       echarts-for-react:
         specifier: ^3.0.2
         version: 3.0.2(echarts@5.6.0)(react@19.1.0)
+      jotai:
+        specifier: ^2.12.5
+        version: 2.12.5(@types/react@19.1.8)(react@19.1.0)
       lucide-react:
         specifier: ^0.523.0
         version: 0.523.0(react@19.1.0)
@@ -5513,6 +5516,21 @@ packages:
         integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==,
       }
     hasBin: true
+
+  jotai@2.12.5:
+    resolution:
+      {
+        integrity: sha512-G8m32HW3lSmcz/4mbqx0hgJIQ0ekndKWiYP7kWVKi0p6saLXdSoye+FZiOFyonnd7Q482LCzm8sMDl7Ar1NWDw==,
+      }
+    engines: { node: '>=12.20.0' }
+    peerDependencies:
+      '@types/react': '>=17.0.0'
+      react: '>=17.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
 
   joycon@3.1.1:
     resolution:
@@ -12776,6 +12794,11 @@ snapshots:
   jest-get-type@29.6.3: {}
 
   jiti@2.4.2: {}
+
+  jotai@2.12.5(@types/react@19.1.8)(react@19.1.0):
+    optionalDependencies:
+      '@types/react': 19.1.8
+      react: 19.1.0
 
   joycon@3.1.1: {}
 

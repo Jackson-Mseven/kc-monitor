@@ -10,7 +10,7 @@ export default () => {
     getFetcher('/auth/me', {
       credentials: 'include',
     }).then((res) => {
-      if (res.code === 401) {
+      if (res.code !== 200) {
         toast.error(res.message)
         router.push('/login')
       }

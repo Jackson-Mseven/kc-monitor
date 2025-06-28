@@ -202,7 +202,7 @@ export default async function (fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      reply.clearCookie('token', { path: '/' })
+      reply.clearCookie('token', { path: '/', httpOnly: true, secure: false, sameSite: 'lax' })
 
       return reply.sendResponse({
         message: '退出成功',
