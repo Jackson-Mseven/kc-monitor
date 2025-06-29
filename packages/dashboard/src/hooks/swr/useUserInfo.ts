@@ -5,12 +5,16 @@ import { useAtom } from 'jotai'
 import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
 
+/**
+ * 获取当前登录的用户信息
+ * @returns 用户信息
+ */
 const useUserInfo = () => {
   const [user, setUser] = useAtom(userAtom)
   const router = useRouter()
 
   const { data, error, isLoading, mutate } = useSWR<CustomResponse>(
-    user ? null : '/auth/me', // 有缓存就不发请求
+    user ? null : '/user/me', // 有缓存就不发请求
     (url) => getFetcher(url, { credentials: 'include' }),
     {
       onSuccess: (response) => {

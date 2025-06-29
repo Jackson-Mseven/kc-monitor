@@ -160,36 +160,6 @@ export default async function (fastify: FastifyInstance) {
     }
   )
 
-  // 获取当前登录用户信息
-  fastify.get(
-    '/me',
-    {
-      schema: {
-        tags: ['auth'],
-        summary: '获取当前登录用户信息',
-        description: '获取当前登录用户的详细信息',
-        response: { 200: CustomResponseSchema },
-      },
-      preValidation: fastify.authenticate,
-    },
-    async (request, reply) => {
-      const userId = request.user.id
-
-      const user = await fastify.prisma.users.findUnique({
-        where: { id: userId },
-      })
-
-      if (!user) {
-        return reply.sendResponse({ ...buildErrorByCode(404), message: '用户不存在' })
-      }
-
-      return reply.sendResponse({
-        message: '获取成功',
-        data: pick(user, ['id', 'name', 'email', 'created_at']),
-      })
-    }
-  )
-
   // 退出登录
   fastify.post(
     '/logout',
