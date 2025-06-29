@@ -1,10 +1,11 @@
+import { Team, TeamRole, User } from '@kc-monitor/shared'
 import { atom } from 'jotai'
 
-export interface User {
-  id: number
-  uuid: string
-  name: string
-  email: string
-}
+export type UserAtom =
+  | (Omit<User, 'password'> & {
+      teams: Team
+      team_roles: TeamRole
+    })
+  | null
 
-export const userAtom = atom<User | null>(null)
+export const userAtom = atom<UserAtom>(null)

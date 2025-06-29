@@ -17,6 +17,7 @@ export const UserSchema = z.object({
   name: UsernameSchema,
   email: EmailSchema,
   password: PasswordSchema,
+  team_id: z.number().optional(),
 })
 
 export const UserParamsSchema = z.object({

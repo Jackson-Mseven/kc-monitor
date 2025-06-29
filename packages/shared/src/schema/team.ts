@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { generateNameSchema, generateSlugSchema, IDSchema } from './common'
+import { generateNameSchema, generateSlugSchema, IDSchema, makeAtLeastOneField } from './common'
 
 export const TeamNameSchema = generateNameSchema('团队')
 
@@ -25,3 +25,5 @@ export const TeamRoleSchema = z.object({
 export const TeamRoleParamsSchema = z.object({
   role_id: IDSchema,
 })
+
+export const TeamUpdateSchema = makeAtLeastOneField(TeamSchema)

@@ -10,9 +10,7 @@ export default () => {
   const router = useRouter()
 
   useEffect(() => {
-    getFetcher('/user/me', {
-      credentials: 'include',
-    }).then((res) => {
+    getFetcher('/user/me').then((res) => {
       if (res.code !== 200) {
         toast.error(res.message)
         router.push('/login')

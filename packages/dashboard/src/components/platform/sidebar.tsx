@@ -71,7 +71,7 @@ export default function PlatformSidebar() {
 
   const { user, isLoading, error } = useUserInfo()
 
-  if (isLoading) return <Skeleton className="h-10 w-full" />
+  if (isLoading) return <Skeleton className="h-screen w-[256px]" />
   if (error) {
     toast.error('Failed to fetch user info, please login again')
     router.push('/login')
@@ -170,7 +170,7 @@ export default function PlatformSidebar() {
                 <SidebarMenuButton size="lg" asChild>
                   <div>
                     <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage src={user?.avatar} alt="Avatar" />
+                      {/* <AvatarImage src={user?.avatar} alt="Avatar" /> */}
                       <AvatarFallback className="rounded-lg">
                         {user?.name?.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
@@ -191,7 +191,7 @@ export default function PlatformSidebar() {
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage src={user?.avatar} alt="Avatar" />
+                      {/* <AvatarImage src={user?.avatar} alt="Avatar" /> */}
                       <AvatarFallback className="rounded-lg">
                         {user?.name.slice(0, 2).toUpperCase()}
                       </AvatarFallback>

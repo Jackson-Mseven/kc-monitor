@@ -3,7 +3,6 @@
 import React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
@@ -31,6 +30,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import UpdateTeamFormCard from '@/components/settings/team/update-team-form-card'
 
 const teamMembers = [
   { name: 'John Doe', email: 'john@example.com', role: 'Owner', avatar: 'JD', status: 'active' },
@@ -73,28 +73,7 @@ export default function TeamsSettingsPage() {
       </header>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Team Information</CardTitle>
-              <CardDescription>Manage your team settings and information</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="teamName">Team Name</Label>
-                  <Input id="teamName" defaultValue="Development Team" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="teamSlug">Team Slug</Label>
-                  <Input id="teamSlug" defaultValue="dev-team" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="teamDescription">Description</Label>
-                <Input id="teamDescription" placeholder="Brief description of your team" />
-              </div>
-            </CardContent>
-          </Card>
+          <UpdateTeamFormCard />
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">

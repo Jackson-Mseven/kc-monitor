@@ -11,8 +11,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import UpdateUserFormCard from '@/components/settings/update-user-form-card'
-import UpdatePasswordFormCard from '@/components/settings/update-password-form-card'
+import UpdateUserFormCard from '@/components/settings/user/update-user-form-card'
+import UpdatePasswordFormCard from '@/components/settings/user/update-password-form-card'
 
 export default function UserPage() {
   return (

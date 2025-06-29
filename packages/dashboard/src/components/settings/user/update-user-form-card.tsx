@@ -34,16 +34,12 @@ const UpdateUserFormCard = () => {
   })
 
   const resetForm = useCallback(() => {
-    form.reset({
-      name: user?.name || '',
-    })
-  }, [form, user?.name])
+    form.reset(user)
+  }, [form, user])
 
   useEffect(() => {
-    if (user?.name) {
-      resetForm()
-    }
-  }, [resetForm, user?.name])
+    resetForm()
+  }, [resetForm])
 
   if (isLoading) return <Skeleton className="h-10 w-full" />
   if (error) {

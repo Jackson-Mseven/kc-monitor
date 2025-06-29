@@ -9,7 +9,10 @@ type InitWithCustomBody = Omit<RequestInit, 'body'> & { body?: JsonBody }
 type FetcherWithCustomBody = Fetcher<InitWithCustomBody>
 
 const baseFetcher: Fetcher = (input, init) =>
-  fetch((process.env.NEXT_PUBLIC_API_URL as string) + input, init).then((res) => res.json())
+  fetch((process.env.NEXT_PUBLIC_API_URL as string) + input, {
+    credentials: 'include',
+    ...init,
+  }).then((res) => res.json())
 
 export const getFetcher: GetFetcher = (input, init) =>
   baseFetcher(input, { ...init, method: 'GET' })

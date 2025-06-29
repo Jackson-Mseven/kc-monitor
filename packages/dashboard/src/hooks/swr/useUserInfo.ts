@@ -1,6 +1,6 @@
-import { User, userAtom } from '@/atoms/user'
-import { CustomResponse } from '@/types/response'
+import { UserAtom, userAtom } from '@/atoms/user'
 import { getFetcher } from '@/utils/fetcher'
+import { CustomResponse } from '@kc-monitor/shared'
 import { useAtom } from 'jotai'
 import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
@@ -13,7 +13,7 @@ const useUserInfo = () => {
   const [user, setUser] = useAtom(userAtom)
   const router = useRouter()
 
-  const { data, error, isLoading, mutate } = useSWR<CustomResponse>(
+  const { data, error, isLoading, mutate } = useSWR<CustomResponse<UserAtom>>(
     user ? null : '/user/me', // 有缓存就不发请求
     (url) => getFetcher(url, { credentials: 'include' }),
     {
@@ -27,7 +27,7 @@ const useUserInfo = () => {
   )
 
   return {
-    user: (user ?? data?.data) as User,
+    user: user ?? data?.data,
     isLoading,
     error,
     refetch: mutate,
