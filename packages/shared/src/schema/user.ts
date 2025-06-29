@@ -23,4 +23,9 @@ export const UserParamsSchema = z.object({
   id: IDSchema,
 })
 
-export const UserUpdateSchema = makeAtLeastOneField(UserSchema.pick({ name: true, password: true }))
+export const UserUpdateSchema = makeAtLeastOneField(UserSchema.pick({ name: true }))
+
+export const UserUpdatePasswordSchema = z.object({
+  password: PasswordSchema,
+  newPassword: PasswordSchema,
+})

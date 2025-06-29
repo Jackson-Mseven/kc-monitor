@@ -5,6 +5,7 @@ import {
   CustomResponseSchema,
   UserParamsSchema,
   UserUpdateSchema,
+  UserUpdatePasswordSchema,
 } from '@kc-monitor/shared'
 import validErrorHandler from 'src/utils/error/validErrorHandler'
 import generateReadHandler from 'src/utils/handler/generateReadHandler'
@@ -21,6 +22,7 @@ interface Params {
 interface Body {
   Create: Pick<User, 'name' | 'password' | 'email'>
   Update: Pick<User, 'name' | 'password' | 'email'>
+  UpdatePassword: { password: string; newPassword: string }
 }
 
 export default async function (fastify: FastifyInstance) {
@@ -135,5 +137,55 @@ export default async function (fastify: FastifyInstance) {
       notFoundMessage: '用户不存在',
       successMessage: '用户已删除',
     })
+  )
+
+  // 修改用户密码
+  fastify.put<{
+    Params: Params['User']
+    Body: Body['UpdatePassword']
+  }>(
+    '/:id/password',
+    {
+      schema: {
+        tags: ['user'],
+        summary: '修改用户密码',
+        description: '修改用户密码',
+        params: UserParamsSchema,
+        body: UserUpdatePasswordSchema,
+        response: { 200: CustomResponseSchema },
+      },
+      errorHandler: validErrorHandler,
+    },
+    async (request, reply) => {
+      const { id } = request.params
+      const { password, newPassword } = request.body
+
+      const user = await fastify.prisma.users.findUnique({ where: { id: Number(id) } })
+      if (!user) {
+        return reply.sendResponse({
+          code: 404,
+          message: '用户不存在',
+        })
+      }
+
+      const isPasswordValid = await fastify.bcrypt.compare(password, user.password)
+      if (!isPasswordValid) {
+        return reply.sendResponse({
+          code: 400,
+          message: '当前密码错误',
+        })
+      }
+
+      const hashedNewPassword = await fastify.bcrypt.hash(newPassword)
+
+      await fastify.prisma.users.update({
+        where: { id: Number(id) },
+        data: { password: hashedNewPassword },
+      })
+
+      return reply.sendResponse({
+        message: '密码修改成功',
+      })
+    }
   )
 }
