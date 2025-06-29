@@ -1,4 +1,5 @@
 export const CODE_TYPE = {
   REGISTER: 'register',
-  FORGET_PASSWORD: 'forget_password',
+  FORGET_PASSWORD: 'forget-password',
+  LIMIT: 'limit',
 } as const

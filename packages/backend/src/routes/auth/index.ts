@@ -8,6 +8,7 @@ import {
   ResetPasswordSchema,
   pick,
   CodeTypeValues,
+  CODE_TYPE,
 } from '@kc-monitor/shared'
 import { User } from 'src/types/user'
 import buildErrorByCode from 'src/utils/error/buildErrorByCode'
@@ -103,7 +104,7 @@ export default async function (fastify: FastifyInstance) {
     async (request, reply) => {
       const { name, email, password, code } = request.body
 
-      const savedCode = await fastify.redis.get(`verify:email:register:${email}`)
+      const savedCode = await fastify.redis.get(`${CODE_TYPE.REGISTER}:${email}`)
 
       if (!savedCode || savedCode !== code) {
         return reply.sendResponse({ ...buildErrorByCode(400), message: '无效或过期的验证码' })
@@ -138,7 +139,7 @@ export default async function (fastify: FastifyInstance) {
           maxAge: 7 * 24 * 60 * 60,
         })
 
-        await fastify.redis.del(`verify:email:${email}`)
+        await fastify.redis.del(`${CODE_TYPE.REGISTER}:${email}`)
 
         return reply.sendResponse({
           code: 201,
@@ -200,7 +201,7 @@ export default async function (fastify: FastifyInstance) {
 
       // 线上环境限制发送频率
       if (process.env.NODE_ENV === 'production') {
-        const limitKey = `verify:limit:${type}:${email}`
+        const limitKey = `${CODE_TYPE.LIMIT}:${type}:${email}`
         const count = await fastify.redis.incr(limitKey)
         if (count === 1) {
           await fastify.redis.expire(limitKey, 60 * 60 * 24)
@@ -219,7 +220,7 @@ export default async function (fastify: FastifyInstance) {
         text: `您的验证码是: ${code}`,
       })
 
-      await fastify.redis.set(`verify:email:${type}:${email}`, code, 'EX', 60 * 5)
+      await fastify.redis.set(`${CODE_TYPE[type]}:${email}`, code, 'EX', 60 * 5)
 
       return reply.sendResponse({
         message: '验证码发送成功',
@@ -254,6 +255,8 @@ export default async function (fastify: FastifyInstance) {
         expiresIn: '15m',
       })
 
+      await fastify.redis.set(`${CODE_TYPE.FORGET_PASSWORD}:${token}`, user.id, 'EX', 15 * 60)
+
       const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`
 
       await fastify.mailer.sendMail({
@@ -286,14 +289,20 @@ export default async function (fastify: FastifyInstance) {
       const { token, newPassword } = request.body
 
       try {
-        const payload = fastify.jwt.verify(token) satisfies { id: string }
+        const redisKey = `${CODE_TYPE.FORGET_PASSWORD}:${token}`
+        const userId = await fastify.redis.get(redisKey)
+        if (!userId) {
+          return reply.sendResponse({ ...buildErrorByCode(400), message: '链接无效或已过期' })
+        }
 
         const hashed = await fastify.bcrypt.hash(newPassword)
 
         await fastify.prisma.users.update({
-          where: { id: Number(payload.id) },
+          where: { id: Number(userId) },
           data: { password: hashed },
         })
+
+        await fastify.redis.del(redisKey)
 
         return reply.sendResponse({ message: '密码已重置成功' })
       } catch (error) {
