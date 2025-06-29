@@ -141,23 +141,22 @@ export default async function (fastify: FastifyInstance) {
 
   // 修改用户密码
   fastify.put<{
-    Params: Params['User']
     Body: Body['UpdatePassword']
   }>(
-    '/:id/password',
+    '/update-password',
     {
       schema: {
         tags: ['user'],
         summary: '修改用户密码',
         description: '修改用户密码',
-        params: UserParamsSchema,
         body: UserUpdatePasswordSchema,
         response: { 200: CustomResponseSchema },
       },
       errorHandler: validErrorHandler,
+      preHandler: fastify.authenticate,
     },
     async (request, reply) => {
-      const { id } = request.params
+      const { id } = request.user
       const { password, newPassword } = request.body
 
       const user = await fastify.prisma.users.findUnique({ where: { id: Number(id) } })
@@ -183,8 +182,10 @@ export default async function (fastify: FastifyInstance) {
         data: { password: hashedNewPassword },
       })
 
+      reply.clearCookie('token', { path: '/', httpOnly: true, secure: false, sameSite: 'lax' })
+
       return reply.sendResponse({
-        message: '密码修改成功',
+        message: '密码修改成功，请重新登录',
       })
     }
   )

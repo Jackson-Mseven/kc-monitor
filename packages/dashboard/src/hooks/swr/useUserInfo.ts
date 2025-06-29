@@ -1,4 +1,4 @@
-import { userAtom } from '@/atoms/user'
+import { User, userAtom } from '@/atoms/user'
 import { CustomResponse } from '@/types/response'
 import { getFetcher } from '@/utils/fetcher'
 import { useAtom } from 'jotai'
@@ -23,7 +23,7 @@ const useUserInfo = () => {
   )
 
   return {
-    user: user ?? data?.data,
+    user: (user ?? data?.data) as User,
     isLoading,
     error,
     refetch: mutate,
