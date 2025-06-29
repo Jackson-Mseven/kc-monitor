@@ -1,5 +1,7 @@
 import { cn } from '@/utils/cn'
 import * as React from 'react'
+import { Button } from './button'
+import { Eye, EyeOff } from 'lucide-react'
 
 function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
   return (
@@ -17,4 +19,41 @@ function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
   )
 }
 
-export { Input }
+function PasswordInput(props: React.ComponentProps<'input'>) {
+  const [showPassword, setShowPassword] = React.useState(false)
+
+  return (
+    <div className="relative">
+      <Input type={showPassword ? 'text' : 'password'} {...props} />
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+        onClick={() => setShowPassword(!showPassword)}
+      >
+        {showPassword ? (
+          <EyeOff className="h-4 w-4 text-gray-400" />
+        ) : (
+          <Eye className="h-4 w-4 text-gray-400" />
+        )}
+      </Button>
+    </div>
+  )
+}
+
+function CodeInput({
+  buttonProps,
+  ...props
+}: React.ComponentProps<'input'> & { buttonProps?: React.ComponentProps<typeof Button> }) {
+  return (
+    <div className="flex space-x-2">
+      <Input {...props} />
+      <Button type="button" variant="outline" {...buttonProps}>
+        Send Code
+      </Button>
+    </div>
+  )
+}
+
+export { Input, PasswordInput, CodeInput }

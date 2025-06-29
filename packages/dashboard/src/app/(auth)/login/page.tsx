@@ -1,11 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { Input, PasswordInput } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Eye, EyeOff } from 'lucide-react'
 import CustomLink from '@/components/base/CustomLink'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -24,7 +23,6 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
 const LoginPage = () => {
-  const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -79,29 +77,13 @@ const LoginPage = () => {
                 <FormItem className="space-y-2">
                   <FormLabel htmlFor="password">Password</FormLabel>
                   <FormControl className="relative">
-                    <>
-                      <Input
-                        id="password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter your password"
-                        required
-                        className="h-11 pr-10"
-                        {...field}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
-                        )}
-                      </Button>
-                    </>
+                    <PasswordInput
+                      id="password"
+                      placeholder="Enter your password"
+                      required
+                      className="h-11 pr-10"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

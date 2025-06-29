@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import React from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { CardContent, CardHeader } from '@/components/ui/card'
 import CustomLink from '@/components/base/CustomLink'
 import { Button } from '@/components/ui/button'
@@ -16,20 +16,19 @@ import { z } from 'zod'
 import { ResetPasswordSchema } from '@kc-monitor/shared'
 import { toast } from 'sonner'
 import { postFetcher } from '@/utils/fetcher'
-import { Input } from '@/components/ui/input'
-import { EyeOff } from 'lucide-react'
-import { Eye } from 'lucide-react'
+import { PasswordInput } from '@/components/ui/input'
 
 const ResetPasswordFormSchema = ResetPasswordSchema.pick({
   newPassword: true,
 })
 
 export default function ResetPassword() {
+  const token = useSearchParams().get('token')
+  const router = useRouter()
+
   const form = useForm<z.infer<typeof ResetPasswordFormSchema>>({
     resolver: zodResolver(ResetPasswordFormSchema),
   })
-  const [showPassword, setShowPassword] = useState(false)
-  const token = useSearchParams().get('token')
 
   const handleSubmit = async (values: z.infer<typeof ResetPasswordFormSchema>) => {
     const response = await postFetcher('/auth/reset-password', {
@@ -37,6 +36,7 @@ export default function ResetPassword() {
     })
     if (response.code === 200) {
       toast.success('Password reset successfully')
+      router.push('/login')
     } else {
       toast.error(response.message)
     }
@@ -57,30 +57,14 @@ export default function ResetPassword() {
               render={({ field }) => (
                 <FormItem className="space-y-2">
                   <FormLabel htmlFor="newPassword">New password</FormLabel>
-                  <FormControl className="relative">
-                    <>
-                      <Input
-                        id="newPassword"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="New password"
-                        required
-                        className="h-11 pr-10"
-                        {...field}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
-                        )}
-                      </Button>
-                    </>
+                  <FormControl>
+                    <PasswordInput
+                      id="newPassword"
+                      placeholder="New password"
+                      required
+                      className="h-11 pr-10"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -93,7 +77,7 @@ export default function ResetPassword() {
         </Form>
         <div className="text-center">
           <div className="text-sm text-muted-foreground">
-            Already have an account?{' '}
+            Already have an account?
             <CustomLink
               href="/login"
               className="text-purple-600 hover:text-purple-700 hover:underline font-medium"
