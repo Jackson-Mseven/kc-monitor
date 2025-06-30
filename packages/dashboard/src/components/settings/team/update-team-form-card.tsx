@@ -3,7 +3,6 @@
 import React, { useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import useUserTeam from '@/hooks/swr/useUserTeam'
 import {
   Form,
   FormField,
@@ -22,6 +21,7 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { putFetcher } from '@/utils/fetcher'
 import withTeamPermission from '@/hoc/withTeamPermission'
+import useUserInfo from '@/hooks/swr/useUserInfo'
 
 const AuthInput = withTeamPermission(Input, 'team:update')
 const AuthButton = withTeamPermission(Button, 'team:update')
@@ -29,16 +29,16 @@ const AuthButton = withTeamPermission(Button, 'team:update')
 export default function UpdateTeamFormCard() {
   const router = useRouter()
 
-  const { team, isLoading, error } = useUserTeam()
+  const { user, isLoading, error } = useUserInfo()
 
   const form = useForm<z.infer<typeof TeamUpdateSchema>>({
     resolver: zodResolver(TeamUpdateSchema),
-    defaultValues: team,
+    defaultValues: user?.teams,
   })
 
   const resetForm = useCallback(() => {
-    form.reset(team)
-  }, [form, team])
+    form.reset(user?.teams)
+  }, [form, user?.teams])
 
   useEffect(() => {
     resetForm()
@@ -51,7 +51,7 @@ export default function UpdateTeamFormCard() {
   }
 
   const handleSubmit = (data: z.infer<typeof TeamUpdateSchema>) => {
-    putFetcher(`/team/${team?.id}`, {
+    putFetcher(`/team/${user?.teams?.id}`, {
       body: data,
     }).then((res) => {
       if (res.code !== 200) {

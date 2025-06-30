@@ -1,7 +1,9 @@
-import { CustomResponseSchema, TEAM_ROLES, TeamSchema } from '@kc-monitor/shared'
+import { CustomResponseSchema, TEAM_PERMISSIONS, TEAM_ROLES, TeamSchema } from '@kc-monitor/shared'
 import { FastifyInstance } from 'fastify'
 import { Team } from 'src/types/team'
+import buildErrorByCode from 'src/utils/error/buildErrorByCode'
 import validErrorHandler from 'src/utils/error/validErrorHandler'
+import { generateTeamAuthPreHandler } from 'src/utils/handler/generateTeamAuthPreHandler'
 import buildPrismaError from 'src/utils/prisma/buildPrismaError'
 
 interface Body {
@@ -9,48 +11,50 @@ interface Body {
 }
 
 export default async function (fastify: FastifyInstance) {
-  // 获取用户所属团队
+  // 获取当前团队的成员列表
   fastify.get(
-    '/',
+    '/members',
     {
       schema: {
-        tags: ['user'],
-        summary: '获取用户所属团队',
-        description: '获取当前登录用户所属的团队',
+        tags: ['teams'],
+        summary: '获取当前团队的成员列表',
+        description: '获取当前团队的成员列表',
         response: {
           200: CustomResponseSchema,
         },
       },
-      preHandler: fastify.authenticate,
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_READ)],
     },
-    async (req, reply) => {
-      const userId = req.user.id
+    async (request, reply) => {
+      const userId = request.user.id
 
       const user = await fastify.prisma.users.findUnique({
-        where: { id: Number(userId) },
+        where: { id: userId },
+        select: { team_id: true },
       })
 
-      if (!user) {
+      if (!user?.team_id) {
         return reply.sendResponse({
-          code: 404,
-          message: '用户不存在',
+          code: 400,
+          message: '你未加入任何团队',
         })
       }
 
-      if (!user.team_id) {
-        return reply.sendResponse({ data: null })
-      }
-
-      const team = await fastify.prisma.teams.findUnique({
-        where: { id: user.team_id },
+      const members = await fastify.prisma.users.findMany({
+        where: { team_id: user.team_id },
+        select: {
+          id: true,
+          uuid: true,
+          created_at: true,
+          name: true,
+          email: true,
+          team_id: true,
+          team_role_id: true,
+        },
       })
 
-      if (!team) {
-        return reply.sendResponse({ code: 404, message: '团队不存在' })
-      }
-
       return reply.sendResponse({
-        data: team,
+        data: members,
       })
     }
   )
@@ -114,6 +118,44 @@ export default async function (fastify: FastifyInstance) {
         }
         return reply.sendDefaultError()
       }
+    }
+  )
+
+  // 用户退出团队
+  fastify.delete(
+    '/',
+    {
+      schema: {
+        tags: ['teams'],
+        summary: '用户退出团队',
+        description: '用户退出团队',
+        response: {
+          200: CustomResponseSchema,
+        },
+      },
+      preHandler: fastify.authenticate,
+    },
+    async (request, reply) => {
+      const userId = request.user.id
+
+      const user = await fastify.prisma.users.findUnique({
+        where: { id: userId },
+        select: { team_id: true },
+      })
+
+      if (!user?.team_id) {
+        return reply.sendResponse({ ...buildErrorByCode(400), message: '你未加入任何团队' })
+      }
+
+      await fastify.prisma.users.update({
+        where: { id: userId },
+        data: {
+          team_id: null,
+          team_role_id: null,
+        },
+      })
+
+      return reply.sendResponse({ message: '退出团队成功' })
     }
   )
 }

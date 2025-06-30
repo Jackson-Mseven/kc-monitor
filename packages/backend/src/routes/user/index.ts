@@ -107,11 +107,6 @@ export default async function (fastify: FastifyInstance) {
       idKey: 'id',
       notFoundMessage: '用户不存在',
       uniqueMessage: '邮箱已经存在',
-      additionalData: async (request) => ({
-        password: request.body.password
-          ? await fastify.bcrypt.hash(request.body.password)
-          : undefined,
-      }),
     })
   )
 
