@@ -14,8 +14,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import {
   Select,
   SelectContent,
@@ -23,33 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { MoreHorizontal, UserPlus } from 'lucide-react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import UpdateTeamFormCard from '@/components/settings/team/update-team-form-card'
-
-const teamMembers = [
-  { name: 'John Doe', email: 'john@example.com', role: 'Owner', avatar: 'JD', status: 'active' },
-  { name: 'Jane Smith', email: 'jane@example.com', role: 'Admin', avatar: 'JS', status: 'active' },
-  {
-    name: 'Mike Johnson',
-    email: 'mike@example.com',
-    role: 'Developer',
-    avatar: 'MJ',
-    status: 'active',
-  },
-  {
-    name: 'Sarah Wilson',
-    email: 'sarah@example.com',
-    role: 'Developer',
-    avatar: 'SW',
-    status: 'pending',
-  },
-]
+import TeamMemberListCard from '@/components/settings/team/team-member-list-card'
 
 export default function TeamsSettingsPage() {
   return (
@@ -74,72 +47,7 @@ export default function TeamsSettingsPage() {
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="grid gap-6">
           <UpdateTeamFormCard />
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Team Members</CardTitle>
-                <CardDescription>Manage team members and their permissions</CardDescription>
-              </div>
-              <Button>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Invite Member
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {teamMembers.map((member, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <Avatar>
-                        <AvatarImage
-                          src={`/placeholder.svg?height=40&width=40`}
-                          alt={member.name}
-                        />
-                        <AvatarFallback>{member.avatar}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{member.name}</p>
-                        <p className="text-sm text-muted-foreground">{member.email}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant={member.status === 'active' ? 'default' : 'secondary'}>
-                        {member.status}
-                      </Badge>
-                      <Select defaultValue={member.role.toLowerCase()}>
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="owner">Owner</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                          <SelectItem value="developer">Developer</SelectItem>
-                          <SelectItem value="viewer">Viewer</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>Resend Invitation</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">Remove</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
+          <TeamMemberListCard />
           <Card>
             <CardHeader>
               <CardTitle>Team Permissions</CardTitle>
