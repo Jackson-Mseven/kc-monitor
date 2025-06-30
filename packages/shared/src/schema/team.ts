@@ -27,3 +27,7 @@ export const TeamRoleParamsSchema = z.object({
 })
 
 export const TeamUpdateSchema = makeAtLeastOneField(TeamSchema)
+
+export const TeamUserParamsSchema = TeamParamsSchema.extend({
+  user_id: IDSchema,
+})
