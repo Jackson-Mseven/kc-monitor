@@ -19,14 +19,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Trash2, AlertTriangle, Loader2 } from 'lucide-react'
+import { deleteFetcher } from '@/utils/fetcher'
+import { toast } from 'sonner'
 
-interface DeleteTeamDialogProps {
+interface DisbandTeamDialogProps {
+  teamId: number
   teamName: string
   teamSlug: string
-  onConfirm: () => Promise<void> | void
 }
 
-export function DeleteTeamDialog({ teamName, teamSlug, onConfirm }: DeleteTeamDialogProps) {
+export default function DisbandTeamDialog({ teamId, teamName, teamSlug }: DisbandTeamDialogProps) {
   const [confirmText, setConfirmText] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
   const [open, setOpen] = useState(false)
@@ -39,8 +41,16 @@ export function DeleteTeamDialog({ teamName, teamSlug, onConfirm }: DeleteTeamDi
 
     setIsDeleting(true)
     try {
-      await onConfirm()
-      setOpen(false)
+      const response = await deleteFetcher(`/team/${teamId}`, {
+        headers: {},
+      })
+      if (response.code === 200) {
+        toast.success('Disbanded team')
+        window.location.reload()
+        setOpen(false)
+      } else {
+        toast.error(response.message)
+      }
     } catch (error) {
       console.error('Error deleting team:', error)
     } finally {
