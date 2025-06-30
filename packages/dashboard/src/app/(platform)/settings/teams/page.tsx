@@ -23,8 +23,21 @@ import {
 } from '@/components/ui/select'
 import UpdateTeamFormCard from '@/components/settings/team/update-team-form-card'
 import TeamMemberListCard from '@/components/settings/team/team-member-list-card'
+import useUserInfo from '@/hooks/swr/useUserInfo'
+import NoTeam from '@/components/settings/team/no-team'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function TeamsSettingsPage() {
+  const { user, isLoading } = useUserInfo()
+
+  if (isLoading) {
+    return <Skeleton className="h-full w-full" />
+  }
+
+  if (!user?.team_id) {
+    return <NoTeam />
+  }
+
   return (
     <SidebarInset>
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">

@@ -6,6 +6,7 @@ import {
 } from '@kc-monitor/shared'
 import { FastifyInstance } from 'fastify'
 import { User } from 'src/types/user'
+import validErrorHandler from 'src/utils/error/validErrorHandler'
 
 interface Body {
   Update: Pick<User, 'name'>
@@ -62,6 +63,7 @@ export default async function (fastify: FastifyInstance) {
         response: { 200: CustomResponseSchema },
       },
       preHandler: fastify.authenticate,
+      errorHandler: validErrorHandler,
     },
     async (request, reply) => {
       const { id } = request.user
@@ -91,6 +93,7 @@ export default async function (fastify: FastifyInstance) {
         response: { 200: CustomResponseSchema },
       },
       preHandler: fastify.authenticate,
+      errorHandler: validErrorHandler,
     },
     async (request, reply) => {
       const { id } = request.user
@@ -123,52 +126,6 @@ export default async function (fastify: FastifyInstance) {
 
       return reply.sendResponse({
         message: '密码修改成功，请重新登录',
-      })
-    }
-  )
-
-  // 获取用户所属团队
-  fastify.get(
-    '/team',
-    {
-      schema: {
-        tags: ['user'],
-        summary: '获取用户所属团队',
-        description: '获取当前登录用户所属的团队',
-        response: {
-          200: CustomResponseSchema,
-        },
-      },
-      preHandler: fastify.authenticate,
-    },
-    async (req, reply) => {
-      const userId = req.user.id
-
-      const user = await fastify.prisma.users.findUnique({
-        where: { id: Number(userId) },
-      })
-
-      if (!user) {
-        return reply.sendResponse({
-          code: 404,
-          message: '用户不存在',
-        })
-      }
-
-      if (!user.team_id) {
-        return reply.sendResponse({ data: null })
-      }
-
-      const team = await fastify.prisma.teams.findUnique({
-        where: { id: user.team_id },
-      })
-
-      if (!team) {
-        return reply.sendResponse({ code: 404, message: '团队不存在' })
-      }
-
-      return reply.sendResponse({
-        data: team,
       })
     }
   )

@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import { TEAM_PERMISSIONS, TEAM_ROLES, User } from '@kc-monitor/shared'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'

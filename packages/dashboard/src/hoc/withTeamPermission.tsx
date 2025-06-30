@@ -14,7 +14,7 @@ export default function withTeamPermission<P extends { disabled?: boolean }>(
 
     if (isLoading) return null
     if (!user) return null
-    const hasPermission = user.team_roles.permissions.includes(permission)
+    const hasPermission = user?.team_roles?.permissions?.includes(permission)
 
     // 如果无权限，传递 disabled: true
     return <WrappedComponent {...props} disabled={!hasPermission} />
