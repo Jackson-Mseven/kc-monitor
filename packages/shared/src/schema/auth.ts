@@ -4,6 +4,7 @@ export * from '../types/auth'
 import { z } from 'zod'
 import { CODE_TYPE } from '../constants/auth'
 import { EmailSchema, PasswordSchema, UserSchema } from './user'
+import { CodeTypeValues } from '../types'
 
 export const LoginSchema = UserSchema.pick({
   email: true,
@@ -21,7 +22,18 @@ export const RegisterFormSchema = RegisterSchema.extend({
   path: ['confirmPassword'],
 })
 
-export const CodeTypeSchema = z.enum(Object.values(CODE_TYPE) as [string, ...string[]])
+export const CodeTypeSchema = z
+  .string({
+    message: '验证码类型不能为空',
+  })
+  .superRefine((val, ctx) => {
+    if (!Object.values(CODE_TYPE).includes(val as CodeTypeValues)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: '验证码类型错误',
+      })
+    }
+  })
 
 export const SendCodeSchema = z.object({ email: EmailSchema, type: CodeTypeSchema })
 

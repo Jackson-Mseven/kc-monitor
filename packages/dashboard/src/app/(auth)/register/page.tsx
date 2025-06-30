@@ -18,7 +18,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { postFetcher } from '@/utils/fetcher'
-import { pick, RegisterFormSchema } from '@kc-monitor/shared'
+import { CODE_TYPE, pick, RegisterFormSchema } from '@kc-monitor/shared'
 import { useRouter } from 'next/navigation'
 
 const RegisterPage = () => {
@@ -32,7 +32,7 @@ const RegisterPage = () => {
     const response = await postFetcher('/auth/register', {
       body: pick(values, ['name', 'email', 'password', 'code']),
     })
-    if (response.code === 200) {
+    if (response.code === 201) {
       toast.success('Registration is successful')
       router.push('/login')
     } else {
@@ -105,7 +105,7 @@ const RegisterPage = () => {
                           }
 
                           const response = await postFetcher('/auth/send-code', {
-                            body: { email },
+                            body: { email, type: CODE_TYPE.REGISTER },
                           })
                           if (response.code === 200) {
                             toast.success('验证码发送成功')

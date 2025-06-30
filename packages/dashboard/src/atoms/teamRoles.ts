@@ -14,6 +14,6 @@ export const teamRolesAtom = atomWithQuery(() => ({
   queryFn: async () => await getFetcher('/team/null/role'),
 }))
 
-export const useTeamRoles = () => {
-  return useAtomValue(teamRolesAtom).data?.data
+export const useTeamRoles = (): TeamRole[] => {
+  return useAtomValue(teamRolesAtom).data?.data ?? []
 }

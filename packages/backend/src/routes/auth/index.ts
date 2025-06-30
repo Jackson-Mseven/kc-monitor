@@ -220,7 +220,7 @@ export default async function (fastify: FastifyInstance) {
         text: `您的验证码是: ${code}`,
       })
 
-      await fastify.redis.set(`${CODE_TYPE[type]}:${email}`, code, 'EX', 60 * 5)
+      await fastify.redis.set(`${type}:${email}`, code, 'EX', 60 * 5)
 
       return reply.sendResponse({
         message: '验证码发送成功',
