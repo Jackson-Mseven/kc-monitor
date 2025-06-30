@@ -1,4 +1,4 @@
-import { CustomResponse } from '@/types/response'
+import { CustomResponse } from '@kc-monitor/shared'
 
 type Input = RequestInfo | URL
 type JsonBody = Record<string, any> | undefined

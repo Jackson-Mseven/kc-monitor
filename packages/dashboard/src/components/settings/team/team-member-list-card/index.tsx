@@ -10,7 +10,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 const TeamMemberListCard = () => {
   const { teamMembers, isLoading, error } = useTeamMembers()
-  console.log('teamMembers---', teamMembers)
 
   if (isLoading) return <Skeleton className="h-10 w-full" />
   if (error) return <div>Error: {error.message}</div>

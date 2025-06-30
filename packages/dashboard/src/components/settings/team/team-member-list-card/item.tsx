@@ -14,6 +14,9 @@ import { Button } from '@/components/ui/button'
 import { useTeamRoles } from '@/atoms/teamRoles'
 import withTeamPermission from '@/hoc/withTeamPermission'
 import useUserInfo from '@/hooks/swr/useUserInfo'
+import { DeleteTeamDialog } from './delete-team-alert-dialog'
+import { deleteFetcher } from '@/utils/fetcher'
+import { toast } from 'sonner'
 
 const AuthSelect = withTeamPermission(Select, TEAM_PERMISSIONS['TEAM_MANAGE'])
 const AuthButton = withTeamPermission(Button, TEAM_PERMISSIONS['TEAM_DELETE'])
@@ -30,6 +33,18 @@ const Item: React.FC<ItemProps> = ({ member }) => {
 
   const handleRemove = () => {
     console.log('remove', member)
+  }
+
+  const handleDisband = async () => {
+    const response = await deleteFetcher(`/team/${member.team_id}`, {
+      headers: {},
+    })
+    if (response.code === 200) {
+      toast.success('Disbanded team')
+      window.location.reload()
+    } else {
+      toast.error(response.message)
+    }
   }
 
   return (
@@ -58,9 +73,14 @@ const Item: React.FC<ItemProps> = ({ member }) => {
           </SelectContent>
         </AuthSelect>
         {user?.id === member.id ? (
-          <Button variant="error" disabled={userIsOwner} className="w-24">
-            Leave
-          </Button>
+          // <Button variant="destructive" className="w-24" onClick={handleDisband}>
+          //   {userIsOwner ? 'Disband' : 'Leave'}
+          // </Button>
+          <DeleteTeamDialog
+            teamName={user?.teams?.name}
+            teamSlug={user?.teams?.slug}
+            onConfirm={handleDisband}
+          />
         ) : (
           <AuthButton className="w-24" onClick={handleRemove}>
             Remove

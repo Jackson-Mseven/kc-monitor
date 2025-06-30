@@ -11,8 +11,8 @@ import generateCreateHandler from 'src/utils/handler/generateCreateHandler'
 import generateReadHandler from 'src/utils/handler/generateReadHandler'
 import generateReadByIdHandler from 'src/utils/handler/generateReadByIdHandler'
 import generateUpdateHandler from 'src/utils/handler/generateUpdateHandler'
-import generateDeleteHandler from 'src/utils/handler/generateDeleteHandler'
 import { generateTeamAuthPreHandler } from 'src/utils/handler/generateTeamAuthPreHandler'
+import buildPrismaError from 'src/utils/prisma/buildPrismaError'
 
 interface Params {
   Team: Pick<Team, 'id'>
@@ -124,11 +124,30 @@ export default async function (fastify: FastifyInstance) {
       },
       preHandler: [fastify.authenticate, generateTeamAuthPreHandler('team:delete')],
     },
-    generateDeleteHandler<Params['Team']>(fastify, {
-      model: 'teams',
-      idKey: 'id',
-      notFoundMessage: '团队不存在',
-      successMessage: '团队已删除',
-    })
+    async (request, reply) => {
+      try {
+        await fastify.prisma.$transaction(async (prisma) => {
+          await prisma.users.updateMany({
+            where: { team_id: Number(request.params.id) },
+            data: {
+              team_id: null,
+              team_role_id: null,
+            },
+          })
+          await prisma.teams.delete({
+            where: { id: Number(request.params.id) },
+          })
+        })
+        return reply.sendResponse({ message: '团队已删除' })
+      } catch (error: any) {
+        if (error.code === 'P2025') {
+          const response = buildPrismaError(error.code, {
+            message: '团队不存在',
+          })
+          return reply.sendResponse({ code: response?.code, ...response?.data })
+        }
+        return reply.sendDefaultError()
+      }
+    }
   )
 }
