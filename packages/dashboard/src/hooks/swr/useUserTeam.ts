@@ -1,18 +1,15 @@
-import { CustomResponse } from '@/types/response'
+import { CustomResponse, Team } from '@kc-monitor/shared'
 import { getFetcher } from '@/utils/fetcher'
 import useSWR from 'swr'
 
 const useUserTeam = () => {
-  const { data, error, isLoading, mutate } = useSWR<CustomResponse>('/user/me/team', getFetcher)
+  const { data, error, isLoading, mutate } = useSWR<CustomResponse<Team>>(
+    '/user/me/team',
+    getFetcher
+  )
 
   return {
-    team: data?.data as {
-      id: number
-      uuid: string
-      created_at: Date
-      name: string
-      slug: string
-    },
+    team: data?.data,
     isLoading,
     error,
     refetch: mutate,
