@@ -4,33 +4,26 @@ import fp from 'fastify-plugin'
 
 declare module 'fastify' {
   interface FastifyReply {
-    sendDefaultError(payload?: Partial<CustomResponse>): void
+    sendDefaultError(options?: Partial<CustomResponse>): void
   }
 }
 
 const sendDefaultErrorPlugin: FastifyPluginCallback = (fastify) => {
   fastify.decorateReply(
     'sendDefaultError',
-    function (
-      this: FastifyReply,
-      {
-        code = 500,
-        message = 'Internal server error',
-        error = 'InternalServerError',
-        data = null,
-        meta = undefined,
-      }: Partial<CustomResponse>
-    ) {
+    function (this: FastifyReply, options: Partial<CustomResponse>) {
+      console.log('options---', options)
+
       const response: CustomResponse = {
-        code,
-        message,
-        data,
-        error,
+        code: options?.code ?? 500,
+        message: options?.message ?? 'Internal server error',
+        data: options?.data ?? null,
+        error: options?.error ?? 'InternalServerError',
       }
-      if (meta !== undefined) {
-        response.meta = meta
+      if (options?.meta !== undefined) {
+        response.meta = options?.meta
       }
-      this.status(code).send(response)
+      this.status(options?.code ?? 500).send(response)
     }
   )
 }
