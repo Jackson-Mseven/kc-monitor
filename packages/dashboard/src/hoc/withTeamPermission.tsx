@@ -7,7 +7,8 @@ import useUserInfo from '@/hooks/swr/useUserInfo'
  */
 export default function withTeamPermission<P extends { disabled?: boolean }>(
   WrappedComponent: React.ComponentType<P>,
-  permission: string
+  permission: string,
+  additionalDisables: boolean = false
 ) {
   return function PermissionWrapper(props: P) {
     const { user, isLoading } = useUserInfo()
@@ -17,6 +18,6 @@ export default function withTeamPermission<P extends { disabled?: boolean }>(
     const hasPermission = user?.team_roles?.permissions?.includes(permission)
 
     // 如果无权限，传递 disabled: true
-    return <WrappedComponent {...props} disabled={!hasPermission} />
+    return <WrappedComponent {...props} disabled={!hasPermission || additionalDisables} />
   }
 }

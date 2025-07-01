@@ -16,8 +16,9 @@ import withTeamPermission from '@/hoc/withTeamPermission'
 import useUserInfo from '@/hooks/swr/useUserInfo'
 import DisbandTeamAlertDialog from './disband-team-alert-dialog'
 import LeaveTeamAlertDialog from './leave-team-alert-dialog'
+import { putFetcher } from '@/utils/fetcher'
+import { toast } from 'sonner'
 
-const AuthSelect = withTeamPermission(Select, TEAM_PERMISSIONS['TEAM_MANAGE'])
 const AuthButton = withTeamPermission(Button, TEAM_PERMISSIONS['TEAM_DELETE'])
 
 interface ItemProps {
@@ -30,8 +31,27 @@ const Item: React.FC<ItemProps> = ({ member }) => {
 
   const userIsOwner = user?.team_role_id === TEAM_ROLES.OWNER
 
+  const AuthSelect = withTeamPermission(
+    Select,
+    TEAM_PERMISSIONS['TEAM_MANAGE'],
+    user?.team_role_id === member?.team_role_id
+  )
+
   const handleRemove = () => {
     console.log('remove', member)
+  }
+
+  const handleChangeRole = async (value: string) => {
+    const response = await putFetcher(`/team/${member?.team_id}/user/${member.id}/role`, {
+      body: {
+        team_role_id: Number(value),
+      },
+    })
+    if (response.code === 200) {
+      toast.success(response.message)
+    } else {
+      toast.error(response.message)
+    }
   }
 
   return (
@@ -47,13 +67,17 @@ const Item: React.FC<ItemProps> = ({ member }) => {
         </div>
       </div>
       <div className="flex items-center space-x-2">
-        <AuthSelect defaultValue={String(member.team_role_id)}>
+        <AuthSelect defaultValue={String(member.team_role_id)} onValueChange={handleChangeRole}>
           <SelectTrigger className="w-32">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {teamRoles?.map((role) => (
-              <SelectItem key={role.id} value={String(role.id)}>
+            {teamRoles.map((role) => (
+              <SelectItem
+                key={role.id}
+                value={String(role.id)}
+                disabled={role.id === TEAM_ROLES.OWNER}
+              >
                 {role.name}
               </SelectItem>
             ))}
