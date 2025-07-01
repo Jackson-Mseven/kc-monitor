@@ -1,4 +1,11 @@
-import { CustomResponseSchema, TEAM_PERMISSIONS, TEAM_ROLES, TeamSchema } from '@kc-monitor/shared'
+import {
+  CustomResponseSchema,
+  TEAM_JOIN_REQUEST_STATUS,
+  TEAM_JOIN_REQUEST_TYPE,
+  TEAM_PERMISSIONS,
+  TEAM_ROLES,
+  TeamSchema,
+} from '@kc-monitor/shared'
 import { FastifyInstance } from 'fastify'
 import { Team } from 'src/types/team'
 import buildErrorByCode from 'src/utils/error/buildErrorByCode'
@@ -8,6 +15,7 @@ import buildPrismaError from 'src/utils/prisma/buildPrismaError'
 
 interface Body {
   Create: Pick<Team, 'name' | 'slug'>
+  Apply: Pick<Team, 'slug'>
 }
 
 export default async function (fastify: FastifyInstance) {
@@ -156,6 +164,74 @@ export default async function (fastify: FastifyInstance) {
       })
 
       return reply.sendResponse({ message: '退出团队成功' })
+    }
+  )
+
+  // 用户申请加入团队
+  fastify.post<{
+    Body: Body['Apply']
+  }>(
+    '/apply',
+    {
+      schema: {
+        tags: ['teams'],
+        summary: '用户申请加入团队',
+        description: '用户申请加入团队',
+        response: {
+          200: CustomResponseSchema,
+        },
+      },
+      preHandler: fastify.authenticate,
+      errorHandler: validErrorHandler,
+    },
+    async (req, reply) => {
+      const userId = req.user.id
+      const { slug } = req.body
+
+      const user = await fastify.prisma.users.findUnique({
+        where: { id: userId },
+        select: {
+          team_id: true,
+        },
+      })
+      if (user?.team_id) {
+        return reply.sendResponse({
+          ...buildErrorByCode(400),
+          message: '你已加入团队，若想要加入其他团队请先退出当前团队',
+        })
+      }
+
+      const team = await fastify.prisma.teams.findUnique({
+        where: { slug },
+        select: {
+          id: true,
+        },
+      })
+      if (!team) {
+        return reply.sendResponse({ ...buildErrorByCode(400), message: '团队不存在' })
+      }
+
+      try {
+        const teamJoinRequest = await fastify.prisma.team_join_requests.create({
+          data: {
+            user_id: userId,
+            team_id: team.id,
+            status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+            type: TEAM_JOIN_REQUEST_TYPE.APPLY,
+          },
+        })
+        return reply.sendResponse({
+          data: teamJoinRequest,
+        })
+      } catch (error: any) {
+        if (error.code === 'P2002') {
+          const response = buildPrismaError(error.code, {
+            message: '你正在申请加入团队或有其他团队邀请你，请等待处理',
+          })
+          return reply.sendResponse({ code: response?.code, ...response?.data })
+        }
+        return reply.sendDefaultError()
+      }
     }
   )
 }
