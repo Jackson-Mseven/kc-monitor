@@ -24,6 +24,7 @@
     "@tanstack/query-core": "^5.81.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dayjs": "^1.11.13",
     "echarts-for-react": "^3.0.2",
     "jotai": "^2.12.5",
     "jotai-tanstack-query": "^0.9.0",

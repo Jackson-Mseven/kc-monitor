@@ -34,9 +34,7 @@ export default function LeaveTeamDialog({ teamName, userRoleId }: LeaveTeamDialo
   const handleConfirm = async () => {
     setIsLeaving(true)
     try {
-      const response = await deleteFetcher(`/user/me/team`, {
-        headers: {},
-      })
+      const response = await deleteFetcher(`/user/me/team`)
       if (response.code === 200) {
         toast.success('You have left the team')
         window.location.reload()

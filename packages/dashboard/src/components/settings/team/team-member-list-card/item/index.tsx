@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
 import { useTeamRoles } from '@/atoms/teamRoles'
 import withTeamPermission from '@/hoc/withTeamPermission'
 import useUserInfo from '@/hooks/swr/useUserInfo'
@@ -18,8 +17,7 @@ import DisbandTeamAlertDialog from './disband-team-alert-dialog'
 import LeaveTeamAlertDialog from './leave-team-alert-dialog'
 import { putFetcher } from '@/utils/fetcher'
 import { toast } from 'sonner'
-
-const AuthButton = withTeamPermission(Button, TEAM_PERMISSIONS['TEAM_DELETE'])
+import RemoveMemberAlertDialog from './remove-member-alert-dialog'
 
 interface ItemProps {
   member: Omit<User, 'password'>
@@ -36,10 +34,6 @@ const Item: React.FC<ItemProps> = ({ member }) => {
     TEAM_PERMISSIONS['TEAM_MANAGE'],
     user?.team_role_id === member?.team_role_id
   )
-
-  const handleRemove = () => {
-    console.log('remove', member)
-  }
 
   const handleChangeRole = async (value: string) => {
     const response = await putFetcher(`/team/${member?.team_id}/user/${member.id}/role`, {
@@ -94,9 +88,11 @@ const Item: React.FC<ItemProps> = ({ member }) => {
             <LeaveTeamAlertDialog teamName={user?.teams?.name} userRoleId={user?.team_role_id} />
           )
         ) : (
-          <AuthButton className="w-24" onClick={handleRemove}>
-            Remove
-          </AuthButton>
+          <RemoveMemberAlertDialog
+            member={member}
+            currentUserRole={user?.team_role_id || 0}
+            teamName={user?.teams?.name || ''}
+          />
         )}
       </div>
     </div>

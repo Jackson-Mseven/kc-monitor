@@ -41,9 +41,7 @@ export default function DisbandTeamDialog({ teamId, teamName, teamSlug }: Disban
 
     setIsDeleting(true)
     try {
-      const response = await deleteFetcher(`/team/${teamId}`, {
-        headers: {},
-      })
+      const response = await deleteFetcher(`/team/${teamId}`)
       if (response.code === 200) {
         toast.success('Disbanded team')
         window.location.reload()
