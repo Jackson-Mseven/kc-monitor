@@ -91,7 +91,7 @@ const Item: React.FC<ItemProps> = ({ member }) => {
               teamSlug={user?.teams?.slug}
             />
           ) : (
-            <LeaveTeamAlertDialog teamName={user?.teams?.name} userRole={user?.team_roles?.name} />
+            <LeaveTeamAlertDialog teamName={user?.teams?.name} userRoleId={user?.team_role_id} />
           )
         ) : (
           <AuthButton className="w-24" onClick={handleRemove}>

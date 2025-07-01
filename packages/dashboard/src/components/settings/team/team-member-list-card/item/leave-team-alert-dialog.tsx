@@ -18,15 +18,18 @@ import { Button } from '@/components/ui/button'
 import { LogOut, Loader2, Users } from 'lucide-react'
 import { deleteFetcher } from '@/utils/fetcher'
 import { toast } from 'sonner'
+import { useTeamRoles } from '@/atoms/teamRoles'
+import { TEAM_ROLES } from '@kc-monitor/shared'
 
 interface LeaveTeamDialogProps {
   teamName: string
-  userRole: string
+  userRoleId: number
 }
 
-export default function LeaveTeamDialog({ teamName, userRole }: LeaveTeamDialogProps) {
+export default function LeaveTeamDialog({ teamName, userRoleId }: LeaveTeamDialogProps) {
   const [isLeaving, setIsLeaving] = useState(false)
   const [open, setOpen] = useState(false)
+  const teamRoles = useTeamRoles()
 
   const handleConfirm = async () => {
     setIsLeaving(true)
@@ -84,14 +87,19 @@ export default function LeaveTeamDialog({ teamName, userRole }: LeaveTeamDialogP
               <li>No longer receive notifications for team activities</li>
               <li>Be removed from all team discussions and alerts</li>
               <li>Need to be re-invited to rejoin the team</li>
-              {userRole !== 'Member' && <li>Lose your {userRole} privileges in this team</li>}
+              {userRoleId !== TEAM_ROLES.MEMBER && (
+                <li>
+                  Lose your {teamRoles.find((role) => role.id === userRoleId)?.name} privileges in
+                  this team
+                </li>
+              )}
             </ul>
             <div className="bg-muted p-3 rounded-lg mt-3">
               <div className="flex items-center gap-2 text-sm">
                 <Users className="h-4 w-4 text-blue-600" />
                 <span className="font-medium">Your current role:</span>
                 <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded text-xs font-medium">
-                  {userRole}
+                  {teamRoles.find((role) => role.id === userRoleId)?.name}
                 </span>
               </div>
             </div>
