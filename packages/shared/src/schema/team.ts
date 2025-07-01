@@ -31,3 +31,10 @@ export const TeamUpdateSchema = makeAtLeastOneField(TeamSchema)
 export const TeamUserParamsSchema = TeamParamsSchema.extend({
   user_id: IDSchema,
 })
+
+export const TeamUserRoleBodySchema = z.object({
+  team_role_id: z.number({
+    required_error: '团队角色ID不能为空',
+    invalid_type_error: '团队角色ID类型错误',
+  }),
+})
