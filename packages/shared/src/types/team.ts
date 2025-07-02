@@ -1,3 +1,5 @@
+import { TEAM_PERMISSIONS, TEAM_ROLES } from '../constants'
+
 export interface Team {
   id: number
   uuid: string
@@ -13,3 +15,9 @@ export interface TeamRole {
   description: string
   permissions: string
 }
+
+export type TeamPermissionKeys = keyof typeof TEAM_PERMISSIONS
+export type TeamPermissionValues = (typeof TEAM_PERMISSIONS)[TeamPermissionKeys]
+
+export type TeamRoleKeys = keyof typeof TEAM_ROLES
+export type TeamRoleValues = (typeof TEAM_ROLES)[TeamRoleKeys]

@@ -17,7 +17,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { UserMinus, Loader2, Shield, User, Mail } from 'lucide-react'
+import { UserMinus, Loader2, Mail } from 'lucide-react'
 import { TEAM_PERMISSIONS, TEAM_ROLES } from '@kc-monitor/shared'
 import withTeamPermission from '@/hoc/withTeamPermission'
 import dayjs from 'dayjs'
@@ -25,6 +25,7 @@ import { useTeamRoles } from '@/atoms/teamRoles'
 import { deleteFetcher } from '@/utils/fetcher'
 import { User as UserType } from '@kc-monitor/shared'
 import { toast } from 'sonner'
+import TeamRoleIcon from '@/components/common/team-role-icon'
 
 const AuthButton = withTeamPermission(Button, TEAM_PERMISSIONS['TEAM_DELETE'])
 
@@ -71,15 +72,6 @@ export default function RemoveMemberAlertDialog({
   const handleOpenChange = (newOpen: boolean) => {
     if (!isRemoving) {
       setOpen(newOpen)
-    }
-  }
-
-  const getRoleIcon = (role: number) => {
-    switch (role) {
-      case TEAM_ROLES.ADMIN:
-        return <Shield className="h-3 w-3" />
-      default:
-        return <User className="h-3 w-3" />
     }
   }
 
@@ -137,7 +129,7 @@ export default function RemoveMemberAlertDialog({
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-semibold">{member?.name}</h3>
                   <Badge variant={getRoleColor(member?.team_role_id ?? 0)} className="gap-1">
-                    {getRoleIcon(member?.team_role_id || 0)}
+                    <TeamRoleIcon roleId={member?.team_role_id} className="h-3 w-3" />
                     {teamRoles?.find((role) => role.id === member?.team_role_id)?.name}
                   </Badge>
                 </div>

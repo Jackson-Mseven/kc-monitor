@@ -8,6 +8,7 @@ import {
   TEAM_JOIN_REQUEST_STATUS,
   TEAM_JOIN_REQUEST_TYPE,
   TEAM_ROLES,
+  TeamParamsSchema,
 } from '@kc-monitor/shared'
 import { generateTeamAuthPreHandler } from 'src/utils/handler/generateTeamAuthPreHandler'
 import buildErrorByCode from 'src/utils/error/buildErrorByCode'
@@ -18,6 +19,9 @@ interface Params {
     id: string
     user_id: string
   }
+  InviteTeamUser: {
+    id: string
+  }
 }
 
 interface Body {
@@ -26,6 +30,7 @@ interface Body {
   }
   InviteTeamUser: {
     team_role_id: number
+    email: string
   }
 }
 
@@ -135,16 +140,16 @@ export default async function (fastify: FastifyInstance) {
 
   // 邀请团队成员
   fastify.post<{
-    Params: Params['TeamUser']
+    Params: Params['InviteTeamUser']
     Body: Body['InviteTeamUser']
   }>(
-    '/:user_id/invite',
+    '/invite',
     {
       schema: {
         tags: ['team'],
         summary: '邀请团队成员',
         description: '邀请团队成员',
-        params: TeamUserParamsSchema,
+        params: TeamParamsSchema,
         body: InviteTeamUserSchema,
         response: {
           200: CustomResponseSchema,
@@ -155,8 +160,8 @@ export default async function (fastify: FastifyInstance) {
     },
     async (request, reply) => {
       const userId = request.user.id
-      const { id, user_id } = request.params
-      const { team_role_id } = request.body
+      const { id } = request.params
+      const { team_role_id, email } = request.body
 
       const team = await fastify.prisma.teams.findUnique({
         where: { id: Number(id) },
@@ -166,8 +171,8 @@ export default async function (fastify: FastifyInstance) {
       }
 
       const user = await fastify.prisma.users.findUnique({
-        where: { id: Number(user_id) },
-        select: { team_id: true, email: true, name: true },
+        where: { email },
+        select: { id: true, team_id: true, email: true, name: true },
       })
       if (!user) {
         return reply.sendResponse({ ...buildErrorByCode(404), message: '用户不存在' })
@@ -191,7 +196,7 @@ export default async function (fastify: FastifyInstance) {
 
       const teamJoinRequest = await fastify.prisma.team_join_requests.findFirst({
         where: {
-          user_id: Number(user_id),
+          user_id: user.id,
           team_id: Number(id),
           status: TEAM_JOIN_REQUEST_STATUS.PENDING,
         },
@@ -203,10 +208,10 @@ export default async function (fastify: FastifyInstance) {
         })
       }
 
-      await fastify.prisma.$transaction(async (tx) => {
-        await fastify.prisma.team_join_requests.create({
+      await fastify.prisma.$transaction(async (prisma) => {
+        await prisma.team_join_requests.create({
           data: {
-            user_id: Number(user_id),
+            user_id: user.id,
             team_id: Number(id),
             type: TEAM_JOIN_REQUEST_TYPE.INVITE,
             status: TEAM_JOIN_REQUEST_STATUS.PENDING,
@@ -214,22 +219,27 @@ export default async function (fastify: FastifyInstance) {
           },
         })
 
-        const inviter = await fastify.prisma.users.findUnique({
-          where: { id: Number(userId) },
-          select: { name: true },
-        })
+        try {
+          const inviter = await prisma.users.findUnique({
+            where: { id: Number(userId) },
+            select: { name: true },
+          })
 
-        const mail = await fastify.mailer.sendMail({
-          to: user.email,
-          subject: `您被邀请加入团队「${team.name}」`,
-          html: `
+          const mail = await fastify.mailer.sendMail({
+            from: `"${process.env.PROJECT_NAME}" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: `您被邀请加入团队「${team.name}」`,
+            html: `
                 <p>您好${user?.name ? `，${user.name}` : ''}：</p>
                 <p>用户${inviter?.name || ''}邀请您加入团队「${team.name}」。</p>
                 <p>请登录系统查看并处理邀请。</p>
               `,
-        })
-        if (!mail) {
-          throw { code: 500, message: '邮件发送失败' }
+          })
+          if (mail.rejected.length > 0) {
+            throw { code: 500, message: '邮件被拒收' }
+          }
+        } catch (error) {
+          throw { code: 500, message: '邮件发送失败', detail: error }
         }
       })
 

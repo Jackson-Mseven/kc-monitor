@@ -1,3 +1,19 @@
+export const TEAM_PERMISSIONS = {
+  TEAM_READ: 'team:read',
+  TEAM_WRITE: 'team:write',
+  TEAM_MANAGE: 'team:manage',
+  TEAM_DELETE: 'team:delete',
+} as const
+
+/**
+ * 团队角色
+ */
+export const TEAM_ROLES = {
+  OWNER: 1,
+  ADMIN: 2,
+  MEMBER: 3,
+} as const
+
 /**
  * 团队加入请求类型
  * 0: 邀请

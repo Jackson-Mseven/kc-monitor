@@ -40,6 +40,7 @@ export const UpdateTeamUserRoleSchema = z.object({
 })
 
 export const InviteTeamUserSchema = z.object({
+  email: z.string({ message: '邮箱不能为空' }).email({ message: '邮箱格式不正确' }),
   team_role_id: z.number({
     required_error: '团队角色ID不能为空',
     invalid_type_error: '团队角色ID类型错误',

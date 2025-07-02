@@ -2,11 +2,10 @@
 
 import React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { UserPlus } from 'lucide-react'
 import useTeamMembers from '@/hooks/swr/useTeamMembers'
 import Item from './item'
 import { Skeleton } from '@/components/ui/skeleton'
+import InviteMemberDialog from './invite-member-dialog'
 
 const TeamMemberListCard = () => {
   const { teamMembers, isLoading, error } = useTeamMembers()
@@ -21,10 +20,7 @@ const TeamMemberListCard = () => {
           <CardTitle>Team Members</CardTitle>
           <CardDescription>Manage team members and their permissions</CardDescription>
         </div>
-        <Button>
-          <UserPlus className="mr-2 h-4 w-4" />
-          Invite Member
-        </Button>
+        <InviteMemberDialog />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

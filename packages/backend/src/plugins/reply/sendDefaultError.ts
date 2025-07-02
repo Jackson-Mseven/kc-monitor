@@ -12,7 +12,10 @@ const sendDefaultErrorPlugin: FastifyPluginCallback = (fastify) => {
   fastify.decorateReply(
     'sendDefaultError',
     function (this: FastifyReply, options: Partial<CustomResponse>) {
-      console.log('options---', options)
+      const statusCode =
+        typeof options?.code === 'number' && options.code >= 100 && options.code <= 599
+          ? options.code
+          : 500
 
       const response: CustomResponse = {
         code: options?.code ?? 500,
@@ -20,10 +23,12 @@ const sendDefaultErrorPlugin: FastifyPluginCallback = (fastify) => {
         data: options?.data ?? null,
         error: options?.error ?? 'InternalServerError',
       }
+
       if (options?.meta !== undefined) {
-        response.meta = options?.meta
+        response.meta = options.meta
       }
-      this.status(options?.code ?? 500).send(response)
+
+      this.status(statusCode).send(response)
     }
   )
 }
