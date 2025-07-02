@@ -1,0 +1,21 @@
+{
+  "name": "@kc-monitor/email-renderer",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index",
+  "scripts": {
+    "dev": "email dev",
+    "build": "email build",
+    "export": "email export"
+  },
+  "dependencies": {
+    "@react-email/components": "0.1.1",
+    "react-dom": "^19.0.0",
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.1",
+    "react-email": "4.0.17"
+  }
+}

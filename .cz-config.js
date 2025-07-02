@@ -15,6 +15,7 @@ module.exports = {
     { name: 'backend' },
     { name: 'dashboard' },
     { name: 'shared' },
+    { name: 'email-renderer' },
   ],
   scopeOverrides: {},
   allowCustomScopes: false, // 关闭手动输入，只允许选择

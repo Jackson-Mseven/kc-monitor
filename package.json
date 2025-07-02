@@ -48,7 +48,8 @@
     "overrides": {
       "@kc-monitor/core": "link:packages/core",
       "@kc-monitor/react": "link:packages/react",
-      "@kc-monitor/shared": "link:packages/shared"
+      "@kc-monitor/shared": "link:packages/shared",
+      "@kc-monitor/email-renderer": "link:packages/email-renderer"
     }
   }
 }

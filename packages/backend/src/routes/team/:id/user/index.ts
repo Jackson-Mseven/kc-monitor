@@ -13,6 +13,8 @@ import {
 import { generateTeamAuthPreHandler } from 'src/utils/handler/generateTeamAuthPreHandler'
 import buildErrorByCode from 'src/utils/error/buildErrorByCode'
 import validErrorHandler from 'src/utils/error/validErrorHandler'
+import { nanoid } from 'nanoid'
+import { renderInviteEmail } from '@kc-monitor/email-renderer'
 
 interface Params {
   TeamUser: {
@@ -225,21 +227,36 @@ export default async function (fastify: FastifyInstance) {
             select: { name: true },
           })
 
+          const token = nanoid(32)
+
+          await fastify.redis.set(
+            `team:invite:${token}`,
+            JSON.stringify({
+              email,
+              teamId: Number(request.params.id),
+            }),
+            'EX',
+            60 * 60 * 24 * 3
+          )
+
           const mail = await fastify.mailer.sendMail({
             from: `"${process.env.PROJECT_NAME}" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: `您被邀请加入团队「${team.name}」`,
-            html: `
-                <p>您好${user?.name ? `，${user.name}` : ''}：</p>
-                <p>用户${inviter?.name || ''}邀请您加入团队「${team.name}」。</p>
-                <p>请登录系统查看并处理邀请。</p>
-              `,
+            text: `请点击链接接受邀请：${process.env.FRONTEND_URL}/invite/accept?token=${token}`,
+            html: await renderInviteEmail({
+              teamName: team.name,
+              inviterName: inviter?.name || '系统',
+              inviteeName: user?.name,
+              inviteLink: `${process.env.FRONTEND_URL}/invite/accept?token=${token}`,
+            }),
           })
           if (mail.rejected.length > 0) {
             throw { code: 500, message: '邮件被拒收' }
           }
         } catch (error) {
-          throw { code: 500, message: '邮件发送失败', detail: error }
+          console.error('邮件发送失败', error)
+          throw { code: 500, message: '邮件发送失败' }
         }
       })
 
