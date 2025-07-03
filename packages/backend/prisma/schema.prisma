@@ -73,38 +73,45 @@ model teams {
 }
 
 model users {
-  id                 Int                  @id @default(autoincrement())
-  uuid               String               @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at         DateTime             @default(now()) @db.Timestamp(6)
-  name               String
-  email              String               @unique(map: "users_email_ukey")
-  password           String
-  team_id            Int?
-  team_role_id       Int?
-  project_members    project_members[]
-  team_join_requests team_join_requests[]
-  teams              teams?               @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "team_id_pkey")
-  team_roles         team_roles?          @relation(fields: [team_role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "team_role_id_pkey")
+  id                            Int                  @id @default(autoincrement())
+  uuid                          String               @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at                    DateTime             @default(now()) @db.Timestamp(6)
+  name                          String
+  email                         String               @unique(map: "users_email_ukey")
+  password                      String
+  team_id                       Int?
+  team_role_id                  Int?
+  project_members               project_members[]
+  team_join_requests_as_inviter team_join_requests[] @relation("inviter")
+  team_join_requests            team_join_requests[]
+  teams                         teams?               @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "team_id_pkey")
+  team_roles                    team_roles?          @relation(fields: [team_role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "team_role_id_pkey")
 }
 
 model team_roles {
-  id          Int     @id(map: "teams_roles_pkey") @default(autoincrement())
-  uuid        String  @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String
-  description String?
-  permissions Json
-  users       users[]
+  id                 Int                  @id(map: "teams_roles_pkey") @default(autoincrement())
+  uuid               String               @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name               String
+  description        String?
+  permissions        Json
+  team_join_requests team_join_requests[]
+  users              users[]
 }
 
 model team_join_requests {
-  id         Int      @id @default(autoincrement())
-  uuid       String   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at DateTime @default(now()) @db.Timestamp(6)
+  id         Int        @id @default(autoincrement())
+  uuid       String     @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime   @default(now()) @db.Timestamp(6)
   user_id    Int
   team_id    Int
   type       Int
   status     Int
   created_by Int?
-  teams      teams    @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "team_id_pkey")
-  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_id_pkey")
+  role_id    Int
+  inviter    users?     @relation("inviter", fields: [created_by], references: [id], onUpdate: NoAction, map: "creacted_by_pkey")
+  team_roles team_roles @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "role_id_pkey")
+  teams      teams      @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "team_id_pkey")
+  users      users      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_id_pkey")
+
+  @@unique([user_id, team_id], map: "team_join_requests_ukey")
 }

@@ -19,9 +19,9 @@ export const SWAGGER_OPTIONS: FastifyRegisterOptions<SwaggerOptions> = {
     ],
     tags: [
       { name: 'users', description: 'User related end-points' },
-      { name: 'role', description: 'Role related end-points' },
       { name: 'project', description: 'Project related end-points' },
       { name: 'auth', description: 'Auth related end-points' },
+      { name: 'team', description: 'Team related end-points' },
     ],
     externalDocs: {
       url: 'https://swagger.io',

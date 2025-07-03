@@ -218,6 +218,7 @@ export default async function (fastify: FastifyInstance) {
             team_id: team.id,
             status: TEAM_JOIN_REQUEST_STATUS.PENDING,
             type: TEAM_JOIN_REQUEST_TYPE.APPLY,
+            role_id: TEAM_ROLES.MEMBER,
           },
         })
         return reply.sendResponse({

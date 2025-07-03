@@ -62,7 +62,7 @@ export default function InviteMemberDialog() {
     setIsInviting(true)
 
     try {
-      const response = await postFetcher(`/team/${user?.teams.id}/user/invite`, {
+      const response = await postFetcher(`/team/${user?.teams.id}/invite`, {
         body: data,
       })
       if (response.code === 201) {

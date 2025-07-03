@@ -46,3 +46,7 @@ export const InviteTeamUserSchema = z.object({
     invalid_type_error: '团队角色ID类型错误',
   }),
 })
+
+export const InviteInfoSchema = z.object({
+  token: z.string({ message: 'token不能为空' }),
+})

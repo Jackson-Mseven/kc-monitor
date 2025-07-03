@@ -35,3 +35,8 @@ export const TEAM_JOIN_REQUEST_STATUS = {
   APPROVED: 1,
   REJECTED: 2,
 } as const
+
+export const TEAM_REQUEST_REDIS_KEY = {
+  INVITE: 'team:invite',
+  APPLY: 'team:apply',
+} as const

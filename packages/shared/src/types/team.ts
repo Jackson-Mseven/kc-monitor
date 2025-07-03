@@ -21,3 +21,38 @@ export type TeamPermissionValues = (typeof TEAM_PERMISSIONS)[TeamPermissionKeys]
 
 export type TeamRoleKeys = keyof typeof TEAM_ROLES
 export type TeamRoleValues = (typeof TEAM_ROLES)[TeamRoleKeys]
+
+export interface TeamJoinRequest {
+  id: number
+  uuid: string
+  created_at: string
+  type: number
+  status: number
+  team_id: number
+  user_id: number
+  role_id: number
+  created_by: number
+}
+
+export interface InviteInfo extends TeamJoinRequest {
+  teams: {
+    id: number
+    name: string
+    slug: string
+  }
+  users: {
+    id: number
+    name: string
+    email: string
+  }
+  inviter: {
+    id: number
+    name: string
+    email: string
+  }
+  team_roles: {
+    id: number
+    name: string
+    description: string
+  }
+}
