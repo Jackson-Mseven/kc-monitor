@@ -211,28 +211,33 @@ export default async function (fastify: FastifyInstance) {
         return reply.sendResponse({ ...buildErrorByCode(400), message: '团队不存在' })
       }
 
-      try {
-        const teamJoinRequest = await fastify.prisma.team_join_requests.create({
-          data: {
-            user_id: userId,
-            team_id: team.id,
-            status: TEAM_JOIN_REQUEST_STATUS.PENDING,
-            type: TEAM_JOIN_REQUEST_TYPE.APPLY,
-            role_id: TEAM_ROLES.MEMBER,
-          },
-        })
+      const existingTeamJoinRequest = await fastify.prisma.team_join_requests.findFirst({
+        where: {
+          user_id: userId,
+          team_id: team.id,
+          status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+        },
+      })
+      if (existingTeamJoinRequest) {
         return reply.sendResponse({
-          data: teamJoinRequest,
+          code: 400,
+          message: '你正在申请加入团队或有其他团队邀请你，请先处理',
         })
-      } catch (error: any) {
-        if (error.code === 'P2002') {
-          const response = buildPrismaError(error.code, {
-            message: '你正在申请加入团队或有其他团队邀请你，请等待处理',
-          })
-          return reply.sendResponse({ code: response?.code, ...response?.data })
-        }
-        return reply.sendDefaultError()
       }
+
+      const teamJoinRequest = await fastify.prisma.team_join_requests.create({
+        data: {
+          user_id: userId,
+          team_id: team.id,
+          status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+          type: TEAM_JOIN_REQUEST_TYPE.APPLY,
+          role_id: TEAM_ROLES.MEMBER,
+        },
+      })
+      return reply.sendResponse({
+        code: 201,
+        data: teamJoinRequest,
+      })
     }
   )
 }
