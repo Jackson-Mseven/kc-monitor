@@ -25,3 +25,9 @@ export function makeAtLeastOneField<T extends z.ZodRawShape>(schema: z.ZodObject
     message: '更新内容不能为空',
   })
 }
+
+export const timestampWithoutTZ = z
+  .string()
+  .refine((val) => /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(val), {
+    message: '时间戳格式无效，应为 YYYY-MM-DD HH:MM:SS',
+  })

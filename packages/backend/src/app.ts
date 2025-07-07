@@ -15,6 +15,7 @@ import multer from 'fastify-multer'
 import cors from '@fastify/cors'
 import fastifyStatic from '@fastify/static'
 import bcrypt from 'fastify-bcrypt'
+import qs from 'fastify-qs'
 
 const fastify = Fastify({
   logger,
@@ -91,6 +92,8 @@ fastify.register(fastifyStatic, {
 fastify.register(bcrypt, {
   saltWorkFactor: 12,
 })
+
+fastify.register(qs)
 
 fastify.register(autoload, {
   dir: path.join(__dirname, 'plugins'),

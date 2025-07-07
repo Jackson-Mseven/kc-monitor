@@ -32,6 +32,7 @@ export interface TeamJoinRequest {
   user_id: number
   role_id: number
   created_by: number
+  dispose_at?: string
 }
 
 export interface InviteInfo extends TeamJoinRequest {

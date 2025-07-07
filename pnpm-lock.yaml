@@ -124,6 +124,9 @@ importers:
       fastify-plugin:
         specifier: ^5.0.1
         version: 5.0.1
+      fastify-qs:
+        specifier: ^5.0.0
+        version: 5.0.0
       fastify-type-provider-zod:
         specifier: ^4.0.2
         version: 4.0.2(fastify@5.4.0)(zod@3.25.74)
@@ -4844,6 +4847,12 @@ packages:
         integrity: sha512-HCxs+YnRaWzCl+cWRYFnHmeRFyR5GVnJTAaCJQiYzQSDwK9MgJdyAsuL3nh0EWRCYMgQ5MeziymvmAhUHYHDUQ==,
       }
 
+  fastify-qs@5.0.0:
+    resolution:
+      {
+        integrity: sha512-3M+GeNRZ3eFEtTiuC4If5n9n+ocKhs2AA80uac3314katme7lSx2mNdrL3Gi7eeaS0XpsdyaGxVlJQBW/dB4rw==,
+      }
+
   fastify-type-provider-zod@4.0.2:
     resolution:
       {
@@ -8155,6 +8164,13 @@ packages:
         integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==,
       }
     engines: { node: '>=6' }
+
+  qs@6.14.0:
+    resolution:
+      {
+        integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==,
+      }
+    engines: { node: '>=0.6' }
 
   queue-microtask@1.2.3:
     resolution:
@@ -13044,6 +13060,11 @@ snapshots:
 
   fastify-plugin@5.0.1: {}
 
+  fastify-qs@5.0.0:
+    dependencies:
+      fastify-plugin: 5.0.1
+      qs: 6.14.0
+
   fastify-type-provider-zod@4.0.2(fastify@5.4.0)(zod@3.25.74):
     dependencies:
       '@fastify/error': 4.2.0
@@ -15141,6 +15162,10 @@ snapshots:
       once: 1.4.0
 
   punycode@2.3.1: {}
+
+  qs@6.14.0:
+    dependencies:
+      side-channel: 1.1.0
 
   queue-microtask@1.2.3: {}
 

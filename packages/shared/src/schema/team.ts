@@ -1,5 +1,11 @@
 import { z } from 'zod'
-import { generateNameSchema, generateSlugSchema, IDSchema, makeAtLeastOneField } from './common'
+import {
+  generateNameSchema,
+  generateSlugSchema,
+  IDSchema,
+  makeAtLeastOneField,
+  timestampWithoutTZ,
+} from './common'
 
 export const TeamNameSchema = generateNameSchema('团队')
 
@@ -49,4 +55,14 @@ export const InviteTeamUserSchema = z.object({
 
 export const InviteInfoSchema = z.object({
   token: z.string({ message: 'token不能为空' }),
+})
+
+export const TeamJoinRequestSchema = z.object({
+  created_at: timestampWithoutTZ,
+  user_id: z.number(),
+  role_id: z.number(),
+  type: z.number(),
+  status: z.number(),
+  created_by: z.number(),
+  dispose_at: timestampWithoutTZ.optional(),
 })
