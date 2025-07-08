@@ -18,7 +18,6 @@ export default function InviteAcceptPage() {
   const token = searchParams.get('token')
 
   const { inviteInfo, isLoading, error } = useInviteInfo(token ?? '')
-  console.log('inviteInfo---', inviteInfo)
 
   if (isLoading) return <Loading />
   if (!inviteInfo || error) return <Error />

@@ -36,6 +36,12 @@ export const TEAM_JOIN_REQUEST_STATUS = {
   REJECTED: 2,
 } as const
 
+export const TEAM_JOIN_REQUEST_STATUS_TEXT = {
+  [TEAM_JOIN_REQUEST_STATUS.PENDING]: 'Pending',
+  [TEAM_JOIN_REQUEST_STATUS.APPROVED]: 'Approved',
+  [TEAM_JOIN_REQUEST_STATUS.REJECTED]: 'Rejected',
+} as const
+
 export const TEAM_REQUEST_REDIS_KEY = {
   INVITE: 'team:invite',
   APPLY: 'team:apply',

@@ -66,3 +66,8 @@ export const TeamJoinRequestSchema = z.object({
   created_by: z.number(),
   dispose_at: timestampWithoutTZ.optional(),
 })
+
+export const FilterSchema = z.object({
+  search: z.string().optional(),
+  status: z.number().optional(),
+})

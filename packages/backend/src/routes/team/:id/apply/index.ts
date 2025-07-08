@@ -1,5 +1,6 @@
 import {
   CustomResponseSchema,
+  TEAM_JOIN_REQUEST_TYPE,
   TEAM_PERMISSIONS,
   TeamJoinRequest,
   TeamJoinRequestSchema,
@@ -18,7 +19,7 @@ interface Params {
 }
 
 interface Querystring {
-  Read: Partial<Pick<TeamJoinRequest, 'user_id' | 'role_id' | 'type' | 'status' | 'created_by'>> & {
+  Read: Partial<Pick<TeamJoinRequest, 'user_id' | 'role_id' | 'status' | 'created_by'>> & {
     search?: string
   }
 }
@@ -87,8 +88,9 @@ export default async function (fastify: FastifyInstance) {
       const teamJoinRequests = await fastify.prisma.team_join_requests.findMany({
         where: {
           ...filters,
-          team_id: Number(id),
           ...searchCondition,
+          team_id: Number(id),
+          type: TEAM_JOIN_REQUEST_TYPE.APPLY,
         },
         include: {
           users: {
@@ -98,12 +100,10 @@ export default async function (fastify: FastifyInstance) {
               email: true,
             },
           },
-          team_roles: true,
-          inviter: {
+          team_roles: {
             select: {
               id: true,
               name: true,
-              email: true,
             },
           },
         },

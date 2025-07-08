@@ -1,4 +1,5 @@
-import { TEAM_PERMISSIONS, TEAM_ROLES } from '../constants'
+import { TEAM_JOIN_REQUEST_STATUS, TEAM_PERMISSIONS, TEAM_ROLES } from '../constants'
+import { User } from './user'
 
 export interface Team {
   id: number
@@ -57,3 +58,12 @@ export interface InviteInfo extends TeamJoinRequest {
     description: string
   }
 }
+
+export interface ReadTeamJoinRequest extends TeamJoinRequest {
+  users: Pick<User, 'id' | 'name' | 'email'>
+  team_roles: Pick<TeamRole, 'id' | 'name'>
+}
+
+export type TeamJoinRequestStatusKeys = keyof typeof TEAM_JOIN_REQUEST_STATUS
+export type TeamJoinRequestStatusValues =
+  (typeof TEAM_JOIN_REQUEST_STATUS)[TeamJoinRequestStatusKeys]
