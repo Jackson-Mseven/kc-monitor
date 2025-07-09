@@ -14,6 +14,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { ReadTeamJoinRequest } from '@kc-monitor/shared'
+import { postFetcher } from '@/utils/fetcher'
+import { toast } from 'sonner'
 
 interface ApproveApplyDialogProps {
   application: ReadTeamJoinRequest
@@ -31,8 +33,19 @@ export default function ApproveApplyDialog({
   const handleConfirm = async () => {
     setIsProcessing(true)
     try {
-      // 模拟 API 调用
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      const response = await postFetcher(
+        `/team/${application.team_id}/apply/${application.id}/approve`,
+        {
+          headers: {},
+        }
+      )
+      if (response.code === 200) {
+        onOpenChange(false)
+        toast.success(response.message)
+        window.location.reload()
+      } else {
+        toast.error(response.message)
+      }
     } catch (error) {
       console.error('Error processing application:', error)
     } finally {

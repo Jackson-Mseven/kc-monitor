@@ -10,12 +10,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { XCircle, AlertCircle, Loader2, Mail } from 'lucide-react'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { XCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { ReadTeamJoinRequest } from '@kc-monitor/shared'
+import { toast } from 'sonner'
+import { postFetcher } from '@/utils/fetcher'
 
 interface RejectApplyDialogProps {
   application: ReadTeamJoinRequest
@@ -28,16 +28,24 @@ export default function RejectApplyDialog({
   open,
   onOpenChange,
 }: RejectApplyDialogProps) {
-  const [notes, setNotes] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
-  const [sendNotification, setSendNotification] = useState(true)
 
   const handleConfirm = async () => {
     setIsProcessing(true)
     try {
-      // 模拟 API 调用
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      setNotes('')
+      const response = await postFetcher(
+        `/team/${application.team_id}/apply/${application.id}/reject`,
+        {
+          headers: {},
+        }
+      )
+      if (response.code === 200) {
+        onOpenChange(false)
+        toast.success(response.message)
+        window.location.reload()
+      } else {
+        toast.error(response.message)
+      }
     } catch (error) {
       console.error('Error processing application:', error)
     } finally {
@@ -48,9 +56,6 @@ export default function RejectApplyDialog({
   const handleOpenChange = (newOpen: boolean) => {
     if (!isProcessing) {
       onOpenChange(newOpen)
-      if (!newOpen) {
-        setNotes('')
-      }
     }
   }
 
@@ -74,7 +79,6 @@ export default function RejectApplyDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* 申请者信息 */}
           <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
             <Avatar>
               <AvatarFallback>{application.users.name.slice(0, 2).toUpperCase()}</AvatarFallback>
@@ -85,7 +89,6 @@ export default function RejectApplyDialog({
             </div>
           </div>
 
-          {/* 操作说明 */}
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
@@ -98,42 +101,6 @@ export default function RejectApplyDialog({
               </ul>
             </AlertDescription>
           </Alert>
-
-          {/* 备注输入 */}
-          <div className="space-y-2">
-            <Label htmlFor="notes">Feedback for Applicant *</Label>
-            <Textarea
-              id="notes"
-              placeholder="Provide constructive feedback about why the application was not accepted..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              disabled={isProcessing}
-              rows={4}
-              maxLength={1000}
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>
-                <span className="text-destructive">Feedback is required for rejections</span>
-              </span>
-              <span>{notes.length}/1000 characters</span>
-            </div>
-          </div>
-
-          {/* 通知选项 */}
-          <div className="flex items-center gap-2 p-3 border rounded-lg">
-            <input
-              type="checkbox"
-              id="sendNotification"
-              checked={sendNotification}
-              onChange={(e) => setSendNotification(e.target.checked)}
-              disabled={isProcessing}
-              className="rounded"
-            />
-            <Label htmlFor="sendNotification" className="flex items-center gap-2 cursor-pointer">
-              <Mail className="h-4 w-4" />
-              Send email notification to {application.users.name}
-            </Label>
-          </div>
         </div>
 
         <DialogFooter className="gap-2">
@@ -142,7 +109,7 @@ export default function RejectApplyDialog({
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={isProcessing || notes.trim().length === 0}
+            disabled={isProcessing}
             className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
           >
             {isProcessing ? (
