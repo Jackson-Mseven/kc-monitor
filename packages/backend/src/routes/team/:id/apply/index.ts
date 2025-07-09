@@ -1,16 +1,15 @@
 import {
   CustomResponseSchema,
+  ReadTeamJoinRequestSchema,
   TEAM_JOIN_REQUEST_TYPE,
   TEAM_PERMISSIONS,
   TeamJoinRequest,
-  TeamJoinRequestSchema,
   TeamParamsSchema,
 } from '@kc-monitor/shared'
 import { FastifyInstance } from 'fastify'
 import buildErrorByCode from 'src/utils/error/buildErrorByCode'
 import validErrorHandler from 'src/utils/error/validErrorHandler'
 import { generateTeamAuthPreHandler } from 'src/utils/handler/generateTeamAuthPreHandler'
-import { z } from 'zod'
 
 interface Params {
   Read: {
@@ -37,9 +36,7 @@ export default async function (fastify: FastifyInstance) {
         summary: '获取团队申请列表',
         description: '获取团队申请列表',
         params: TeamParamsSchema,
-        querystring: TeamJoinRequestSchema.partial().extend({
-          search: z.string().optional(),
-        }),
+        querystring: ReadTeamJoinRequestSchema,
         response: {
           200: CustomResponseSchema,
         },
@@ -50,7 +47,7 @@ export default async function (fastify: FastifyInstance) {
     async (request, reply) => {
       const userId = request.user.id
       const { id } = request.params
-      const { search, ...filters } = request.query
+      const { search, status } = request.query
 
       const user = await fastify.prisma.users.findUnique({
         where: {
@@ -87,8 +84,8 @@ export default async function (fastify: FastifyInstance) {
 
       const teamJoinRequests = await fastify.prisma.team_join_requests.findMany({
         where: {
-          ...filters,
           ...searchCondition,
+          status: Number(status) || undefined,
           team_id: Number(id),
           type: TEAM_JOIN_REQUEST_TYPE.APPLY,
         },

@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Filter, RefreshCw, Search } from 'lucide-react'
 import { Input } from '../ui/input'
@@ -12,23 +12,34 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { FilterSchema, TEAM_JOIN_REQUEST_STATUS_TEXT } from '@kc-monitor/shared'
 
-const DEFAULT_FILTER_VALUES = {
+export type FilterFormData = z.infer<typeof FilterSchema>
+export const DEFAULT_FILTER_VALUES: FilterFormData = {
   search: '',
   status: -1,
 }
 
-const FilterCard = () => {
-  const form = useForm<z.infer<typeof FilterSchema>>({
+interface FilterCardProps {
+  onFilter?: (filters: FilterFormData) => void
+  initialValues: FilterFormData
+}
+
+const FilterCard: React.FC<FilterCardProps> = ({ onFilter, initialValues }) => {
+  const form = useForm<FilterFormData>({
     resolver: zodResolver(FilterSchema),
-    defaultValues: DEFAULT_FILTER_VALUES,
+    defaultValues: initialValues,
   })
+
+  useEffect(() => {
+    form.reset(initialValues)
+  }, [form, initialValues])
 
   const handleRefresh = () => {
     form.reset(DEFAULT_FILTER_VALUES)
+    onFilter?.(DEFAULT_FILTER_VALUES)
   }
 
-  const handleSubmit = (data: z.infer<typeof FilterSchema>) => {
-    console.log(data)
+  const handleSubmit = (data: FilterFormData) => {
+    onFilter?.(data)
   }
 
   return (
@@ -72,6 +83,10 @@ const FilterCard = () => {
                       value={String(field.value)}
                       onValueChange={(value) => {
                         field.onChange(Number(value))
+                        onFilter?.({
+                          search: form.getValues('search'),
+                          status: Number(value),
+                        })
                       }}
                     >
                       <SelectTrigger className="w-full md:w-48">

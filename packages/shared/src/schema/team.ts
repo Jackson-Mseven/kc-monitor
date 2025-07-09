@@ -67,7 +67,16 @@ export const TeamJoinRequestSchema = z.object({
   dispose_at: timestampWithoutTZ.optional(),
 })
 
-export const FilterSchema = z.object({
-  search: z.string().optional(),
-  status: z.number().optional(),
-})
+export const FilterSchema = z
+  .object({
+    search: z.string(),
+    status: z.number(),
+  })
+  .partial()
+
+export const ReadTeamJoinRequestSchema = z
+  .object({
+    search: z.string(),
+    status: z.string(),
+  })
+  .partial()

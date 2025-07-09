@@ -17,13 +17,15 @@ import useTeamRequests from '@/hooks/swr/useTeamRequests'
 import useUserInfo from '@/hooks/swr/useUserInfo'
 import { Skeleton } from '@/components/ui/skeleton'
 import RequestCountCard from '@/components/apply/request-count-card'
-import FilterCard from '@/components/apply/filter-card'
+import FilterCard, { DEFAULT_FILTER_VALUES, FilterFormData } from '@/components/apply/filter-card'
 import { cn } from '@/utils/cn'
 import ApplyItem from '@/components/apply/apply-item'
 
 export default function TeamApplicationsPage() {
   const { user } = useUserInfo()
-  const { teamRequests, counts, isLoading, error } = useTeamRequests(user?.team_id ?? 0)
+  const [filters, setFilters] = useState<FilterFormData>(DEFAULT_FILTER_VALUES)
+
+  const { teamRequests, counts, isLoading, error } = useTeamRequests(user?.team_id ?? 0, filters)
 
   const [selectedApplyIds, setSelectedApplyIds] = useState<number[]>([])
 
@@ -77,6 +79,11 @@ export default function TeamApplicationsPage() {
     // setSelectedApplyIds([])
   }
 
+  const handleFilterChange = (newFilters: FilterFormData) => {
+    setSelectedApplyIds([])
+    setFilters(newFilters)
+  }
+
   return (
     <SidebarInset>
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
@@ -100,7 +107,7 @@ export default function TeamApplicationsPage() {
           ))}
         </div>
 
-        <FilterCard />
+        <FilterCard onFilter={handleFilterChange} initialValues={filters} />
 
         <Card
           className={cn({
