@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -23,14 +23,11 @@ import ApplyItem from '@/components/apply/apply-item'
 
 export default function TeamApplicationsPage() {
   const { user } = useUserInfo()
+
   const [filters, setFilters] = useState<FilterFormData>(DEFAULT_FILTER_VALUES)
-
   const { teamRequests, counts, isLoading, error } = useTeamRequests(user?.team_id ?? 0, filters)
-
-  const [selectedApplyIds, setSelectedApplyIds] = useState<number[]>([])
-
-  const CountList = useMemo(() => {
-    return [
+  const countList = useMemo(
+    () => [
       {
         title: 'Total Applications',
         count: counts?.total ?? 0,
@@ -51,38 +48,47 @@ export default function TeamApplicationsPage() {
         count: counts?.rejected ?? 0,
         description: 'Applications declined',
       },
-    ]
-  }, [counts])
+    ],
+    [counts]
+  )
+
+  const [selectedApplyIds, setSelectedApplyIds] = useState<number[]>([])
+
+  const handleFilterChange = useCallback((newFilters: FilterFormData) => {
+    setSelectedApplyIds([])
+    setFilters(newFilters)
+  }, [])
+
+  const handleSelectApply = useCallback(
+    (checked: boolean, applyId: number) => {
+      if (checked) {
+        setSelectedApplyIds([...selectedApplyIds, applyId])
+      }
+      setSelectedApplyIds(selectedApplyIds.filter((id) => id !== applyId))
+    },
+    [selectedApplyIds]
+  )
+
+  const handleSelectAllApply = useCallback(
+    (checked: boolean) => {
+      if (checked) {
+        setSelectedApplyIds(teamRequests.map((item) => item.id))
+      }
+      setSelectedApplyIds([])
+    },
+    [teamRequests]
+  )
+
+  const handleBatchAction = useCallback(
+    (action: 'approve' | 'reject') => {
+      console.log(`Batch ${action} applications:`, selectedApplyIds)
+      setSelectedApplyIds([])
+    },
+    [selectedApplyIds]
+  )
 
   if (isLoading) return <Skeleton className="h-full w-full" />
   if (error) return <div>Error: {error.message}</div>
-
-  const handleSelectApply = (checked: boolean, applyId: number) => {
-    if (checked) {
-      setSelectedApplyIds([...selectedApplyIds, applyId])
-    } else {
-      setSelectedApplyIds(selectedApplyIds.filter((id) => id !== applyId))
-    }
-  }
-
-  const handleSelectAllApply = (checked: boolean) => {
-    if (checked) {
-      setSelectedApplyIds(teamRequests.map((item) => item.id))
-    } else {
-      setSelectedApplyIds([])
-    }
-  }
-
-  const handleBatchAction = (action: 'approve' | 'reject') => {
-    console.log(`Batch ${action} applications:`, selectedApplyIds)
-    // 实际应用中这里会调用 API
-    // setSelectedApplyIds([])
-  }
-
-  const handleFilterChange = (newFilters: FilterFormData) => {
-    setSelectedApplyIds([])
-    setFilters(newFilters)
-  }
 
   return (
     <SidebarInset>
@@ -102,7 +108,7 @@ export default function TeamApplicationsPage() {
 
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="grid auto-rows-min gap-4 md:grid-cols-4">
-          {CountList.map((item) => (
+          {countList.map((item) => (
             <RequestCountCard key={item.title} {...item} />
           ))}
         </div>
