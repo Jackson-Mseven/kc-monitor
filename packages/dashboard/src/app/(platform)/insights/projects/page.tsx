@@ -101,158 +101,135 @@ const performanceComparisonOption = {
 
 export default function ProjectsInsightsPage() {
   return (
-    <SidebarInset>
-      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">Insights</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Projects</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-        <div className="ml-auto px-4">
-          <Select defaultValue="7d">
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1d">Last 24h</SelectItem>
-              <SelectItem value="7d">Last 7 days</SelectItem>
-              <SelectItem value="30d">Last 30 days</SelectItem>
-              <SelectItem value="90d">Last 90 days</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </header>
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-              <FolderOpen className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{projectsData.length}</div>
-              <p className="text-xs text-muted-foreground">
-                <span className="text-green-500">+2</span> new this month
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Healthy Projects</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {projectsData.filter((p) => p.status === 'healthy').length}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {Math.round(
-                  (projectsData.filter((p) => p.status === 'healthy').length /
-                    projectsData.length) *
-                    100
-                )}
-                % of total
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Critical Issues</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {projectsData.filter((p) => p.status === 'critical').length}
-              </div>
-              <p className="text-xs text-muted-foreground">Require immediate attention</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Error Distribution</CardTitle>
-              <CardDescription>Error count by project</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ReactECharts option={projectErrorsOption} style={{ height: '300px' }} />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance Comparison</CardTitle>
-              <CardDescription>Performance scores across projects</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ReactECharts option={performanceComparisonOption} style={{ height: '300px' }} />
-            </CardContent>
-          </Card>
-        </div>
-
+    <>
+      <div className="ml-auto px-4">
+        <Select defaultValue="7d">
+          <SelectTrigger className="w-32">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1d">Last 24h</SelectItem>
+            <SelectItem value="7d">Last 7 days</SelectItem>
+            <SelectItem value="30d">Last 30 days</SelectItem>
+            <SelectItem value="90d">Last 90 days</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <CardHeader>
-            <CardTitle>Project Overview</CardTitle>
-            <CardDescription>Detailed view of all projects and their health status</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
+            <FolderOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {projectsData.map((project, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div className="flex items-center space-x-4">
-                    <FolderOpen className="h-8 w-8 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{project.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {project.errors} errors • {project.performance}% performance
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2">
-                      {project.trend === 'up' ? (
-                        <TrendingUp className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <TrendingDown className="h-4 w-4 text-red-500" />
-                      )}
-                      <span className="text-sm text-muted-foreground">
-                        {project.trend === 'up' ? 'Improving' : 'Declining'}
-                      </span>
-                    </div>
-                    <Badge
-                      variant={
-                        project.status === 'healthy'
-                          ? 'default'
-                          : project.status === 'warning'
-                            ? 'secondary'
-                            : 'destructive'
-                      }
-                    >
-                      {project.status}
-                    </Badge>
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
-                  </div>
-                </div>
-              ))}
+            <div className="text-2xl font-bold">{projectsData.length}</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-green-500">+2</span> new this month
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Healthy Projects</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {projectsData.filter((p) => p.status === 'healthy').length}
             </div>
+            <p className="text-xs text-muted-foreground">
+              {Math.round(
+                (projectsData.filter((p) => p.status === 'healthy').length / projectsData.length) *
+                  100
+              )}
+              % of total
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Critical Issues</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {projectsData.filter((p) => p.status === 'critical').length}
+            </div>
+            <p className="text-xs text-muted-foreground">Require immediate attention</p>
           </CardContent>
         </Card>
       </div>
-    </SidebarInset>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Error Distribution</CardTitle>
+            <CardDescription>Error count by project</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ReactECharts option={projectErrorsOption} style={{ height: '300px' }} />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Performance Comparison</CardTitle>
+            <CardDescription>Performance scores across projects</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ReactECharts option={performanceComparisonOption} style={{ height: '300px' }} />
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Project Overview</CardTitle>
+          <CardDescription>Detailed view of all projects and their health status</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {projectsData.map((project, index) => (
+              <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center space-x-4">
+                  <FolderOpen className="h-8 w-8 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium">{project.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {project.errors} errors • {project.performance}% performance
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    {project.trend === 'up' ? (
+                      <TrendingUp className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <TrendingDown className="h-4 w-4 text-red-500" />
+                    )}
+                    <span className="text-sm text-muted-foreground">
+                      {project.trend === 'up' ? 'Improving' : 'Declining'}
+                    </span>
+                  </div>
+                  <Badge
+                    variant={
+                      project.status === 'healthy'
+                        ? 'default'
+                        : project.status === 'warning'
+                          ? 'secondary'
+                          : 'destructive'
+                    }
+                  >
+                    {project.status}
+                  </Badge>
+                  <Button variant="outline" size="sm">
+                    View Details
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </>
   )
 }
