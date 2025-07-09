@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -26,6 +26,31 @@ export default function TeamApplicationsPage() {
   const { teamRequests, counts, isLoading, error } = useTeamRequests(user?.team_id ?? 0)
 
   const [selectedApplyIds, setSelectedApplyIds] = useState<number[]>([])
+
+  const CountList = useMemo(() => {
+    return [
+      {
+        title: 'Total Applications',
+        count: counts?.total,
+        description: 'All time applications',
+      },
+      {
+        title: 'Pending Review',
+        count: counts?.pending,
+        description: 'Awaiting your review',
+      },
+      {
+        title: 'Approved',
+        count: counts?.approved,
+        description: 'Successfully approved',
+      },
+      {
+        title: 'Rejected',
+        count: counts?.rejected,
+        description: 'Applications declined',
+      },
+    ]
+  }, [counts])
 
   if (isLoading) return <Skeleton className="h-full w-full" />
   if (error) return <div>Error: {error.message}</div>
@@ -70,26 +95,9 @@ export default function TeamApplicationsPage() {
 
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="grid auto-rows-min gap-4 md:grid-cols-4">
-          <RequestCountCard
-            title="Total Applications"
-            count={counts.total}
-            description="All time applications"
-          />
-          <RequestCountCard
-            title="Pending Review"
-            count={counts.pending}
-            description="Awaiting your review"
-          />
-          <RequestCountCard
-            title="Approved"
-            count={counts.approved}
-            description="Successfully approved"
-          />
-          <RequestCountCard
-            title="Rejected"
-            count={counts.rejected}
-            description="Applications declined"
-          />
+          {CountList.map((item) => (
+            <RequestCountCard key={item.title} {...item} />
+          ))}
         </div>
 
         <FilterCard />
