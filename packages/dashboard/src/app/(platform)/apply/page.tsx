@@ -20,6 +20,8 @@ import RequestCountCard from '@/components/apply/request-count-card'
 import FilterCard, { DEFAULT_FILTER_VALUES, FilterFormData } from '@/components/apply/filter-card'
 import { cn } from '@/utils/cn'
 import ApplyItem from '@/components/apply/apply-item'
+import { postFetcher } from '@/utils/fetcher'
+import { toast } from 'sonner'
 
 export default function TeamApplicationsPage() {
   const { user } = useUserInfo()
@@ -74,18 +76,29 @@ export default function TeamApplicationsPage() {
     (checked: boolean) => {
       if (checked) {
         setSelectedApplyIds(teamRequests.map((item) => item.id))
+      } else {
+        setSelectedApplyIds([])
       }
-      setSelectedApplyIds([])
     },
     [teamRequests]
   )
 
   const handleBatchAction = useCallback(
-    (action: 'approve' | 'reject') => {
-      console.log(`Batch ${action} applications:`, selectedApplyIds)
-      setSelectedApplyIds([])
+    async (action: 'approve' | 'reject') => {
+      const response = await postFetcher(`/team/${user?.team_id}/apply/batch-${action}`, {
+        body: {
+          requestIds: selectedApplyIds,
+        },
+      })
+      if (response.code === 200) {
+        toast.success(response.message)
+        setSelectedApplyIds([])
+        window.location.reload()
+      } else {
+        toast.error(response.message)
+      }
     },
-    [selectedApplyIds]
+    [selectedApplyIds, user?.team_id]
   )
 
   if (isLoading) return <Skeleton className="h-full w-full" />
