@@ -22,7 +22,7 @@ const getStatusIcon = (status: number) => {
     case TEAM_JOIN_REQUEST_STATUS.REJECTED:
       return <XCircle className="h-4 w-4 text-white" />
     case TEAM_JOIN_REQUEST_STATUS.CANCELLED:
-      return <XCircle className="h-4 w-4 text-white" />
+      return <XCircle className="h-4 w-4" />
     default:
       return null
   }

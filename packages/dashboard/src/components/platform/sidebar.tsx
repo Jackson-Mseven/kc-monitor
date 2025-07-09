@@ -3,7 +3,7 @@
 import React from 'react'
 import { Home, BarChart3, Users, User, FolderOpen, Monitor, UserIcon, LogOut } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import {
   Sidebar,
   SidebarContent,
@@ -67,14 +67,13 @@ const settingsItems = [
 
 export default function PlatformSidebar() {
   const pathname = usePathname()
-  const router = useRouter()
 
   const { user, isLoading, error } = useUserInfo()
 
   if (isLoading) return <Skeleton className="h-screen w-[256px]" />
   if (error) {
     toast.error('Failed to fetch user info, please login again')
-    router.push('/login')
+    window.location.href = '/login'
   }
 
   const handleLogout = async () => {
@@ -86,7 +85,7 @@ export default function PlatformSidebar() {
         toast.error(res.message)
         return
       }
-      router.push('/login')
+      window.location.href = '/login'
     })
   }
 
