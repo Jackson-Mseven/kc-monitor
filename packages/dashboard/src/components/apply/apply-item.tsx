@@ -13,6 +13,36 @@ import { Button } from '../ui/button'
 import ApproveApplyDialog from './approve-apply-dialog'
 import RejectApplyDialog from './reject-apply-dialog'
 
+const getStatusIcon = (status: number) => {
+  switch (status) {
+    case TEAM_JOIN_REQUEST_STATUS.PENDING:
+      return <Clock className="h-4 w-4 text-yellow-500" />
+    case TEAM_JOIN_REQUEST_STATUS.APPROVED:
+      return <CheckCircle className="h-4 w-4 text-green-500" />
+    case TEAM_JOIN_REQUEST_STATUS.REJECTED:
+      return <XCircle className="h-4 w-4 text-white" />
+    case TEAM_JOIN_REQUEST_STATUS.CANCELLED:
+      return <XCircle className="h-4 w-4 text-white" />
+    default:
+      return null
+  }
+}
+
+const getStatusColor = (status: number) => {
+  switch (status) {
+    case TEAM_JOIN_REQUEST_STATUS.PENDING:
+      return 'secondary'
+    case TEAM_JOIN_REQUEST_STATUS.APPROVED:
+      return 'default'
+    case TEAM_JOIN_REQUEST_STATUS.REJECTED:
+      return 'destructive'
+    case TEAM_JOIN_REQUEST_STATUS.CANCELLED:
+      return 'secondary'
+    default:
+      return 'secondary'
+  }
+}
+
 interface ApplyItemProps {
   selectedApplyIds: number[]
   data: ReadTeamJoinRequest
@@ -22,36 +52,6 @@ interface ApplyItemProps {
 const ApplyItem = ({ selectedApplyIds, data, onChecked }: ApplyItemProps) => {
   const [showApproveDialog, setShowApproveDialog] = useState(false)
   const [showRejectDialog, setShowRejectDialog] = useState(false)
-
-  const getStatusIcon = (status: number) => {
-    switch (status) {
-      case TEAM_JOIN_REQUEST_STATUS.PENDING:
-        return <Clock className="h-4 w-4 text-yellow-500" />
-      case TEAM_JOIN_REQUEST_STATUS.APPROVED:
-        return <CheckCircle className="h-4 w-4 text-green-500" />
-      case TEAM_JOIN_REQUEST_STATUS.REJECTED:
-        return <XCircle className="h-4 w-4 text-white" />
-      case TEAM_JOIN_REQUEST_STATUS.CANCELLED:
-        return <XCircle className="h-4 w-4 text-white" />
-      default:
-        return null
-    }
-  }
-
-  const getStatusColor = (status: number) => {
-    switch (status) {
-      case TEAM_JOIN_REQUEST_STATUS.PENDING:
-        return 'secondary'
-      case TEAM_JOIN_REQUEST_STATUS.APPROVED:
-        return 'default'
-      case TEAM_JOIN_REQUEST_STATUS.REJECTED:
-        return 'destructive'
-      case TEAM_JOIN_REQUEST_STATUS.CANCELLED:
-        return 'secondary'
-      default:
-        return 'secondary'
-    }
-  }
 
   return (
     <>

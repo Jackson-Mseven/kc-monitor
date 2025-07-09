@@ -63,8 +63,9 @@ export default function TeamApplicationsPage() {
     (checked: boolean, applyId: number) => {
       if (checked) {
         setSelectedApplyIds([...selectedApplyIds, applyId])
+      } else {
+        setSelectedApplyIds(selectedApplyIds.filter((id) => id !== applyId))
       }
-      setSelectedApplyIds(selectedApplyIds.filter((id) => id !== applyId))
     },
     [selectedApplyIds]
   )

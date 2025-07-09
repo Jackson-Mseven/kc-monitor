@@ -91,7 +91,7 @@ export default async function (fastify: FastifyInstance) {
       const teamJoinRequests = await fastify.prisma.team_join_requests.findMany({
         where: {
           ...searchCondition,
-          status: Number(status) || undefined,
+          ...(Number.isFinite(Number(status)) ? { status: Number(status) } : {}),
           team_id: Number(id),
           type: TEAM_JOIN_REQUEST_TYPE.APPLY,
         },
