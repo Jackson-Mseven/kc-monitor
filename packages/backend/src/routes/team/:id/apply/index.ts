@@ -1,4 +1,5 @@
 import {
+  BatchProcessTeamJoinRequestSchema,
   CustomResponseSchema,
   ProcessTeamJoinRequestSchema,
   ReadTeamJoinRequestSchema,
@@ -26,6 +27,15 @@ interface Params {
 interface Querystring {
   Read: Partial<Pick<TeamJoinRequest, 'user_id' | 'role_id' | 'status' | 'created_by'>> & {
     search?: string
+  }
+}
+
+interface Body {
+  BatchApprove: {
+    requestIds: number[]
+  }
+  BatchReject: {
+    requestIds: number[]
   }
 }
 
@@ -202,7 +212,6 @@ export default async function (fastify: FastifyInstance) {
             user_id: teamJoinRequest.user_id,
             id: { not: teamJoinRequest.id },
             status: TEAM_JOIN_REQUEST_STATUS.PENDING,
-            type: TEAM_JOIN_REQUEST_TYPE.APPLY,
           },
           data: {
             status: TEAM_JOIN_REQUEST_STATUS.CANCELLED,
@@ -281,6 +290,155 @@ export default async function (fastify: FastifyInstance) {
 
       return reply.sendResponse({
         message: `已拒绝${teamJoinRequest.users.name}的团队申请`,
+      })
+    }
+  )
+
+  // 批量同意团队申请
+  fastify.post<{
+    Params: Params['Read']
+    Body: Body['BatchApprove']
+  }>(
+    '/batch-approve',
+    {
+      schema: {
+        tags: ['team'],
+        summary: '批量同意团队申请',
+        description: '批量同意团队申请',
+        params: TeamParamsSchema,
+        body: BatchProcessTeamJoinRequestSchema,
+        response: {
+          200: CustomResponseSchema,
+        },
+      },
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_MANAGE)],
+      errorHandler: validErrorHandler,
+    },
+    async (request, reply) => {
+      const { id } = request.params
+      const { requestIds } = request.body
+
+      const requests = await fastify.prisma.team_join_requests.findMany({
+        where: {
+          id: { in: requestIds },
+          team_id: Number(id),
+          type: TEAM_JOIN_REQUEST_TYPE.APPLY,
+          status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+        },
+        include: {
+          users: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      })
+
+      if (requests.length === 0) {
+        return reply.sendResponse({ ...buildErrorByCode(404), message: '未找到可处理的申请' })
+      }
+
+      await fastify.prisma.$transaction(async (prisma) => {
+        await prisma.team_join_requests.updateMany({
+          where: {
+            id: { in: requests.map((r) => r.id) },
+          },
+          data: {
+            status: TEAM_JOIN_REQUEST_STATUS.APPROVED,
+            dispose_at: new Date(),
+          },
+        })
+
+        const userIds = requests.map((r) => r.user_id)
+        await prisma.team_join_requests.updateMany({
+          where: {
+            user_id: { in: userIds },
+            id: { notIn: requests.map((r) => r.id) },
+            status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+          },
+          data: {
+            status: TEAM_JOIN_REQUEST_STATUS.CANCELLED,
+            dispose_at: new Date(),
+          },
+        })
+
+        for (const req of requests) {
+          await prisma.users.update({
+            where: { id: req.user_id },
+            data: {
+              team_id: Number(id),
+              team_role_id: req.role_id,
+            },
+          })
+        }
+      })
+
+      return reply.sendResponse({
+        message: `已同意${requests.length}个团队申请`,
+      })
+    }
+  )
+
+  // 批量拒绝团队申请
+  fastify.post<{
+    Params: Params['Read']
+    Body: Body['BatchReject']
+  }>(
+    '/batch-reject',
+    {
+      schema: {
+        tags: ['team'],
+        summary: '批量拒绝团队申请',
+        description: '批量拒绝团队申请',
+        params: TeamParamsSchema,
+        body: BatchProcessTeamJoinRequestSchema,
+        response: {
+          200: CustomResponseSchema,
+        },
+      },
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_MANAGE)],
+      errorHandler: validErrorHandler,
+    },
+    async (request, reply) => {
+      const { id } = request.params
+      const { requestIds } = request.body
+
+      const requests = await fastify.prisma.team_join_requests.findMany({
+        where: {
+          id: { in: requestIds },
+          team_id: Number(id),
+          type: TEAM_JOIN_REQUEST_TYPE.APPLY,
+          status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+        },
+        include: {
+          users: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      })
+
+      if (requests.length === 0) {
+        return reply.sendResponse({ ...buildErrorByCode(404), message: '未找到可处理的申请' })
+      }
+
+      await fastify.prisma.team_join_requests.updateMany({
+        where: {
+          id: { in: requests.map((r) => r.id) },
+        },
+        data: {
+          status: TEAM_JOIN_REQUEST_STATUS.REJECTED,
+          dispose_at: new Date(),
+        },
+      })
+
+      return reply.sendResponse({
+        message: `已拒绝${requests.length}个团队申请`,
       })
     }
   )

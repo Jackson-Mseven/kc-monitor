@@ -85,3 +85,7 @@ export const ProcessTeamJoinRequestSchema = z.object({
   id: IDSchema,
   requestId: IDSchema,
 })
+
+export const BatchProcessTeamJoinRequestSchema = z.object({
+  requestIds: z.array(z.number()),
+})
