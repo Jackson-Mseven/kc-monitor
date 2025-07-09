@@ -193,6 +193,20 @@ export default async function (fastify: FastifyInstance) {
           where: { id: teamJoinRequest.id },
           data: {
             status: TEAM_JOIN_REQUEST_STATUS.APPROVED,
+            dispose_at: new Date(),
+          },
+        })
+
+        await prisma.team_join_requests.updateMany({
+          where: {
+            user_id: teamJoinRequest.user_id,
+            id: { not: teamJoinRequest.id },
+            status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+            type: TEAM_JOIN_REQUEST_TYPE.APPLY,
+          },
+          data: {
+            status: TEAM_JOIN_REQUEST_STATUS.CANCELLED,
+            dispose_at: new Date(),
           },
         })
 
@@ -261,6 +275,7 @@ export default async function (fastify: FastifyInstance) {
         where: { id: teamJoinRequest.id },
         data: {
           status: TEAM_JOIN_REQUEST_STATUS.REJECTED,
+          dispose_at: new Date(),
         },
       })
 

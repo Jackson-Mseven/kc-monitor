@@ -31,6 +31,8 @@ const ApplyItem = ({ selectedApplyIds, data, onChecked }: ApplyItemProps) => {
         return <CheckCircle className="h-4 w-4 text-green-500" />
       case TEAM_JOIN_REQUEST_STATUS.REJECTED:
         return <XCircle className="h-4 w-4 text-white" />
+      case TEAM_JOIN_REQUEST_STATUS.CANCELLED:
+        return <XCircle className="h-4 w-4 text-white" />
       default:
         return null
     }
@@ -44,6 +46,8 @@ const ApplyItem = ({ selectedApplyIds, data, onChecked }: ApplyItemProps) => {
         return 'default'
       case TEAM_JOIN_REQUEST_STATUS.REJECTED:
         return 'destructive'
+      case TEAM_JOIN_REQUEST_STATUS.CANCELLED:
+        return 'secondary'
       default:
         return 'secondary'
     }

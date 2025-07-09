@@ -108,10 +108,9 @@ model team_join_requests {
   status     Int
   created_by Int?
   role_id    Int
+  dispose_at DateTime?  @db.Timestamp(6)
   inviter    users?     @relation("inviter", fields: [created_by], references: [id], onUpdate: NoAction, map: "creacted_by_pkey")
   team_roles team_roles @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "role_id_pkey")
   teams      teams      @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "team_id_pkey")
   users      users      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_id_pkey")
-
-  @@unique([user_id, team_id], map: "team_join_requests_ukey")
 }

@@ -29,17 +29,20 @@ export const TEAM_JOIN_REQUEST_TYPE = {
  * 0: 待处理
  * 1: 已接受
  * 2: 已拒绝
+ * 3: 已取消（用户加入其他团队）
  */
 export const TEAM_JOIN_REQUEST_STATUS = {
   PENDING: 0,
   APPROVED: 1,
   REJECTED: 2,
+  CANCELLED: 3,
 } as const
 
 export const TEAM_JOIN_REQUEST_STATUS_TEXT = {
   [TEAM_JOIN_REQUEST_STATUS.PENDING]: 'Pending',
   [TEAM_JOIN_REQUEST_STATUS.APPROVED]: 'Approved',
   [TEAM_JOIN_REQUEST_STATUS.REJECTED]: 'Rejected',
+  [TEAM_JOIN_REQUEST_STATUS.CANCELLED]: 'Cancelled',
 } as const
 
 export const TEAM_REQUEST_REDIS_KEY = {
