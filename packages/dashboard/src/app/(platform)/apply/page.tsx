@@ -33,22 +33,22 @@ export default function TeamApplicationsPage() {
     return [
       {
         title: 'Total Applications',
-        count: counts?.total,
+        count: counts?.total ?? 0,
         description: 'All time applications',
       },
       {
         title: 'Pending Review',
-        count: counts?.pending,
+        count: counts?.pending ?? 0,
         description: 'Awaiting your review',
       },
       {
         title: 'Approved',
-        count: counts?.approved,
+        count: counts?.approved ?? 0,
         description: 'Successfully approved',
       },
       {
         title: 'Rejected',
-        count: counts?.rejected,
+        count: counts?.rejected ?? 0,
         description: 'Applications declined',
       },
     ]
