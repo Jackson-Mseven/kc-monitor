@@ -80,3 +80,8 @@ export const ReadTeamJoinRequestSchema = z
     status: z.string(),
   })
   .partial()
+
+export const ProcessTeamJoinRequestSchema = z.object({
+  id: IDSchema,
+  requestId: IDSchema,
+})

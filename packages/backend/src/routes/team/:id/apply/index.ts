@@ -1,6 +1,8 @@
 import {
   CustomResponseSchema,
+  ProcessTeamJoinRequestSchema,
   ReadTeamJoinRequestSchema,
+  TEAM_JOIN_REQUEST_STATUS,
   TEAM_JOIN_REQUEST_TYPE,
   TEAM_PERMISSIONS,
   TeamJoinRequest,
@@ -14,6 +16,10 @@ import { generateTeamAuthPreHandler } from 'src/utils/handler/generateTeamAuthPr
 interface Params {
   Read: {
     id: string
+  }
+  Action: {
+    id: string
+    requestId: string
   }
 }
 
@@ -130,6 +136,136 @@ export default async function (fastify: FastifyInstance) {
           },
           data: teamJoinRequests,
         },
+      })
+    }
+  )
+
+  // 管理员通过团队申请
+  fastify.post<{
+    Params: Params['Action']
+  }>(
+    '/:requestId/approve',
+    {
+      schema: {
+        tags: ['team'],
+        summary: '管理员通过团队申请',
+        description: '管理员通过团队申请',
+        params: ProcessTeamJoinRequestSchema,
+        response: {
+          200: CustomResponseSchema,
+        },
+      },
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_MANAGE)],
+      errorHandler: validErrorHandler,
+    },
+    async (request, reply) => {
+      const { id, requestId } = request.params
+
+      const teamJoinRequest = await fastify.prisma.team_join_requests.findUnique({
+        where: {
+          id: Number(requestId),
+          team_id: Number(id),
+          type: TEAM_JOIN_REQUEST_TYPE.APPLY,
+        },
+        include: {
+          users: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              team_id: true,
+            },
+          },
+        },
+      })
+      if (!teamJoinRequest) {
+        return reply.sendResponse({ ...buildErrorByCode(404), message: '申请不存在' })
+      }
+      if (teamJoinRequest.status !== TEAM_JOIN_REQUEST_STATUS.PENDING) {
+        return reply.sendResponse({ ...buildErrorByCode(400), message: '申请已被处理' })
+      }
+      if (teamJoinRequest.users.team_id) {
+        return reply.sendResponse({ ...buildErrorByCode(400), message: '用户已加入其他团队' })
+      }
+
+      await fastify.prisma.$transaction(async (prisma) => {
+        await prisma.team_join_requests.update({
+          where: { id: teamJoinRequest.id },
+          data: {
+            status: TEAM_JOIN_REQUEST_STATUS.APPROVED,
+          },
+        })
+
+        await prisma.users.update({
+          where: { id: teamJoinRequest.user_id },
+          data: {
+            team_id: Number(id),
+            team_role_id: teamJoinRequest.role_id,
+          },
+        })
+      })
+
+      return reply.sendResponse({
+        message: `已成功批准${teamJoinRequest.users.name}的团队申请`,
+      })
+    }
+  )
+
+  // 管理员拒绝团队申请
+  fastify.post<{
+    Params: Params['Action']
+  }>(
+    '/:requestId/reject',
+    {
+      schema: {
+        tags: ['team'],
+        summary: '管理员拒绝团队申请',
+        description: '管理员拒绝团队申请',
+        params: ProcessTeamJoinRequestSchema,
+        response: {
+          200: CustomResponseSchema,
+        },
+      },
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_MANAGE)],
+      errorHandler: validErrorHandler,
+    },
+    async (request, reply) => {
+      const { id, requestId } = request.params
+
+      const teamJoinRequest = await fastify.prisma.team_join_requests.findUnique({
+        where: {
+          id: Number(requestId),
+          team_id: Number(id),
+          type: TEAM_JOIN_REQUEST_TYPE.APPLY,
+        },
+        include: {
+          users: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      })
+
+      if (!teamJoinRequest) {
+        return reply.sendResponse({ ...buildErrorByCode(404), message: '申请不存在' })
+      }
+
+      if (teamJoinRequest.status !== TEAM_JOIN_REQUEST_STATUS.PENDING) {
+        return reply.sendResponse({ ...buildErrorByCode(400), message: '申请已被处理' })
+      }
+
+      await fastify.prisma.team_join_requests.update({
+        where: { id: teamJoinRequest.id },
+        data: {
+          status: TEAM_JOIN_REQUEST_STATUS.REJECTED,
+        },
+      })
+
+      return reply.sendResponse({
+        message: `已拒绝${teamJoinRequest.users.name}的团队申请`,
       })
     }
   )
