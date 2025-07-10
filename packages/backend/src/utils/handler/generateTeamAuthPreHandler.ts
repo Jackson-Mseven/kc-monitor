@@ -1,4 +1,4 @@
-import { TeamPermissionValues } from '@kc-monitor/shared'
+import { TEAM_ROLES, TeamPermissionValues } from '@kc-monitor/shared'
 import buildErrorByCode from '../error/buildErrorByCode'
 
 export function generateTeamAuthPreHandler(permission: TeamPermissionValues) {
@@ -6,13 +6,14 @@ export function generateTeamAuthPreHandler(permission: TeamPermissionValues) {
     const userId = request.user?.id
     const user = await request.server.prisma.users.findUnique({
       where: { id: userId },
+      select: { team_role_id: true },
     })
     if (!user)
       return reply.sendResponse({
         ...buildErrorByCode(401),
         message: '用户不存在',
       })
-    if (!user.team_role_id) {
+    if (!Object.values(TEAM_ROLES).includes(user.team_role_id)) {
       return reply.sendResponse({
         ...buildErrorByCode(403),
         message: '用户无权限',
