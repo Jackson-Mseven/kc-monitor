@@ -8,7 +8,8 @@
     "format": "prettier --write .",
     "commit": "git add . && cz",
     "build": "tsc -b",
-    "clean": "rm -rf packages/*/dist"
+    "clean": "rm -rf packages/*/dist",
+    "tokei": "tokei --exclude pnpm-lock.yaml"
   },
   "workspaces": [
     "packages/*"
