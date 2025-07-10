@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { FolderOpen, AlertTriangle, Plus, Activity, Code2, Globe, Rocket } from 'lucide-react'
 import Link from 'next/link'
 import CountCard from '@/components/projects/count-card'
-import ProjectsFilter from '@/components/projects/filter'
+import Filter from '@/components/projects/filter'
 import Empty from '@/components/projects/empty'
 import NoMatch from '@/components/projects/no-match'
 import ProjectCard from '@/components/projects/projects-card'
@@ -173,7 +173,7 @@ export default function ProjectsPage() {
         ))}
       </div>
 
-      <ProjectsFilter viewMode={viewMode} setViewMode={setViewMode} />
+      <Filter viewMode={viewMode} setViewMode={setViewMode} />
 
       {viewMode === 'grid' ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

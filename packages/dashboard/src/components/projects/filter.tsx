@@ -19,7 +19,7 @@ interface ProjectsFilterProps {
   setViewMode: (value: 'grid' | 'table') => void
 }
 
-const ProjectsFilter: React.FC<ProjectsFilterProps> = ({ viewMode, setViewMode }) => {
+const Filter: React.FC<ProjectsFilterProps> = ({ viewMode, setViewMode }) => {
   const form = useForm<z.infer<typeof ProjectsFilterSchema>>({
     resolver: zodResolver(ProjectsFilterSchema),
     defaultValues: {
@@ -114,4 +114,4 @@ const ProjectsFilter: React.FC<ProjectsFilterProps> = ({ viewMode, setViewMode }
   )
 }
 
-export default ProjectsFilter
+export default Filter
