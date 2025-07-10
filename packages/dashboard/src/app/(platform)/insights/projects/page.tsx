@@ -1,58 +1,15 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { SidebarInset } from '@/components/ui/sidebar'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import {
-  FolderOpen,
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  CheckCircle,
-  Search,
-  Plus,
-  MoreHorizontal,
-  Settings,
-  Trash2,
-  ExternalLink,
-  Activity,
-  Clock,
-  Users,
-  Code2,
-  Globe,
-  Rocket,
-  Filter,
-  ArrowUpDown,
-} from 'lucide-react'
+import { FolderOpen, AlertTriangle, Plus, Activity, Code2, Globe, Rocket } from 'lucide-react'
 import Link from 'next/link'
-import { formatDistanceToNow } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
+import CountCard from '@/components/projects/count-card'
+import ProjectsFilter from '@/components/projects/filter'
+import Empty from '@/components/projects/empty'
+import NoMatch from '@/components/projects/no-match'
+import ProjectCard from '@/components/projects/projects-card'
+import ProjectsTable from '@/components/projects/projects-table'
 
 // 模拟项目数据
 const projectsData = [
@@ -133,71 +90,20 @@ const projectsData = [
   },
 ]
 
-const platformIcons = {
+export const PLATFORM_ICONS = {
   react: Rocket,
   nextjs: Globe,
   javascript: Code2,
 }
 
-const statusColors = {
+export const STATUS_COLORS = {
   healthy: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
   warning: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
   critical: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
 }
 
 export default function ProjectsPage() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [platformFilter, setPlatformFilter] = useState('all')
-  const [sortBy, setSortBy] = useState('name')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid')
-
-  const filteredAndSortedProjects = useMemo(() => {
-    const filtered = projectsData.filter((project) => {
-      const matchesSearch =
-        project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesStatus = statusFilter === 'all' || project.status === statusFilter
-      const matchesPlatform = platformFilter === 'all' || project.platform === platformFilter
-
-      return matchesSearch && matchesStatus && matchesPlatform
-    })
-
-    filtered.sort((a, b) => {
-      let aValue: any, bValue: any
-
-      switch (sortBy) {
-        case 'name':
-          aValue = a.name.toLowerCase()
-          bValue = b.name.toLowerCase()
-          break
-        case 'errors':
-          aValue = a.errors
-          bValue = b.errors
-          break
-        case 'performance':
-          aValue = a.performance
-          bValue = b.performance
-          break
-        case 'lastEvent':
-          aValue = a.lastEvent.getTime()
-          bValue = b.lastEvent.getTime()
-          break
-        default:
-          aValue = a.name.toLowerCase()
-          bValue = b.name.toLowerCase()
-      }
-
-      if (sortOrder === 'asc') {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0
-      }
-    })
-
-    return filtered
-  }, [searchQuery, statusFilter, platformFilter, sortBy, sortOrder])
 
   const stats = useMemo(() => {
     const total = projectsData.length
@@ -210,295 +116,46 @@ export default function ProjectsPage() {
     return { total, healthy, warning, critical, totalErrors, avgPerformance }
   }, [])
 
-  const handleSort = (field: string) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortBy(field)
-      setSortOrder('asc')
-    }
-  }
-
-  const renderProjectCard = (project: any) => {
-    const PlatformIcon = platformIcons[project.platform as keyof typeof platformIcons]
-
-    return (
-      <Card key={project.id} className="hover:shadow-md transition-shadow">
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-muted rounded-lg">
-                <PlatformIcon className="w-5 h-5" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">{project.name}</CardTitle>
-                <CardDescription className="text-sm">{project.description}</CardDescription>
-              </div>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>操作</DropdownMenuLabel>
-                <DropdownMenuItem asChild>
-                  <Link href={`/insights/projects/${project.id}`}>
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    查看详情
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href={`/insights/projects/${project.id}/settings`}>
-                    <Settings className="w-4 h-4 mr-2" />
-                    项目设置
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600">
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  删除项目
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Badge className={statusColors[project.status as keyof typeof statusColors]}>
-              {project.status === 'healthy' && <CheckCircle className="w-3 h-3 mr-1" />}
-              {project.status === 'warning' && <AlertTriangle className="w-3 h-3 mr-1" />}
-              {project.status === 'critical' && <AlertTriangle className="w-3 h-3 mr-1" />}
-              {project.status === 'healthy'
-                ? '健康'
-                : project.status === 'warning'
-                  ? '警告'
-                  : '严重'}
-            </Badge>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              {project.trend === 'up' ? (
-                <TrendingUp className="w-4 h-4 text-green-500" />
-              ) : (
-                <TrendingDown className="w-4 h-4 text-red-500" />
-              )}
-              <span>{project.trend === 'up' ? '改善' : '恶化'}</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-red-500" />
-              <span>{project.errors} 错误</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-blue-500" />
-              <span>{project.performance}% 性能</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-purple-500" />
-              <span>{project.members} 成员</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-gray-500" />
-              <span>
-                {formatDistanceToNow(project.lastEvent, { addSuffix: true, locale: zhCN })}
-              </span>
-            </div>
-          </div>
-
-          <div className="pt-2 border-t">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>环境: {project.environment}</span>
-              <span>{project.releases} 个版本</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  const renderProjectTable = () => (
-    <Card>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleSort('name')}
-                className="h-auto p-0 font-medium"
-              >
-                项目名称
-                <ArrowUpDown className="w-4 h-4 ml-1" />
-              </Button>
-            </TableHead>
-            <TableHead>状态</TableHead>
-            <TableHead>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleSort('errors')}
-                className="h-auto p-0 font-medium"
-              >
-                错误数
-                <ArrowUpDown className="w-4 h-4 ml-1" />
-              </Button>
-            </TableHead>
-            <TableHead>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleSort('performance')}
-                className="h-auto p-0 font-medium"
-              >
-                性能
-                <ArrowUpDown className="w-4 h-4 ml-1" />
-              </Button>
-            </TableHead>
-            <TableHead>成员</TableHead>
-            <TableHead>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleSort('lastEvent')}
-                className="h-auto p-0 font-medium"
-              >
-                最后事件
-                <ArrowUpDown className="w-4 h-4 ml-1" />
-              </Button>
-            </TableHead>
-            <TableHead className="w-[50px]"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredAndSortedProjects.map((project) => {
-            const PlatformIcon = platformIcons[project.platform as keyof typeof platformIcons]
-
-            return (
-              <TableRow key={project.id} className="hover:bg-muted/50">
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="p-1.5 bg-muted rounded">
-                      <PlatformIcon className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="font-medium">{project.name}</div>
-                      <div className="text-sm text-muted-foreground">{project.description}</div>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge className={statusColors[project.status as keyof typeof statusColors]}>
-                    {project.status === 'healthy'
-                      ? '健康'
-                      : project.status === 'warning'
-                        ? '警告'
-                        : '严重'}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={
-                        project.errors > 50
-                          ? 'text-red-600'
-                          : project.errors > 20
-                            ? 'text-yellow-600'
-                            : 'text-green-600'
-                      }
-                    >
-                      {project.errors}
-                    </span>
-                    {project.trend === 'up' ? (
-                      <TrendingUp className="w-3 h-3 text-green-500" />
-                    ) : (
-                      <TrendingDown className="w-3 h-3 text-red-500" />
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={
-                      project.performance > 95
-                        ? 'text-green-600'
-                        : project.performance > 90
-                          ? 'text-yellow-600'
-                          : 'text-red-600'
-                    }
-                  >
-                    {project.performance}%
-                  </span>
-                </TableCell>
-                <TableCell>{project.members}</TableCell>
-                <TableCell className="text-sm text-muted-foreground">
-                  {formatDistanceToNow(project.lastEvent, { addSuffix: true, locale: zhCN })}
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link href={`/insights/projects/${project.id}`}>
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          查看详情
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href={`/insights/projects/${project.id}/settings`}>
-                          <Settings className="w-4 h-4 mr-2" />
-                          项目设置
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600">
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        删除项目
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            )
-          })}
-        </TableBody>
-      </Table>
-    </Card>
+  const countList = useMemo(
+    () => [
+      {
+        title: '总项目数',
+        value: stats.total,
+        description: (
+          <>
+            <span className="text-green-500">{stats.healthy}</span> 健康项目
+          </>
+        ),
+        Icon: FolderOpen,
+      },
+      {
+        title: '总错误数',
+        value: stats.totalErrors,
+        description: (
+          <>
+            <span className="text-red-500">{stats.critical}</span> 严重项目
+          </>
+        ),
+        Icon: AlertTriangle,
+      },
+      {
+        title: '平均性能',
+        value: stats.avgPerformance.toFixed(1) + '%',
+        description: '所有项目平均值',
+        Icon: Activity,
+      },
+      {
+        title: '警告项目',
+        value: stats.warning,
+        description: '需要关注的项目',
+        Icon: AlertTriangle,
+      },
+    ],
+    [stats]
   )
 
-  // 如果没有项目，显示空状态
-  const emptyState = (
-    <SidebarInset>
-      <div className="flex flex-1 items-center justify-center">
-        <div className="text-center">
-          <FolderOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">还没有项目</h3>
-          <p className="text-muted-foreground mb-4">创建您的第一个项目开始监控应用</p>
-          <Button asChild>
-            <Link href="/insights/projects/new">
-              <Plus className="w-4 h-4 mr-2" />
-              创建项目
-            </Link>
-          </Button>
-        </div>
-      </div>
-    </SidebarInset>
-  )
-
-  const noMatchState = (
-    <Card className="flex flex-1 items-center justify-center p-8">
-      <div className="text-center">
-        <Search className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-semibold mb-2">未找到匹配的项目</h3>
-        <p className="text-muted-foreground">尝试调整搜索条件或筛选器</p>
-      </div>
-    </Card>
-  )
+  if (projectsData.length === 0) return <Empty />
+  if (projectsData.length === 0) return <NoMatch />
 
   return (
     <>
@@ -510,117 +167,22 @@ export default function ProjectsPage() {
           </Link>
         </Button>
       </div>
-      {/* 统计卡片 */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">总项目数</CardTitle>
-            <FolderOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-green-500">{stats.healthy}</span> 健康项目
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">总错误数</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalErrors}</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-red-500">{stats.critical}</span> 严重项目
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">平均性能</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.avgPerformance.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground">所有项目平均值</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">警告项目</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.warning}</div>
-            <p className="text-xs text-muted-foreground">需要关注的项目</p>
-          </CardContent>
-        </Card>
+        {countList.map((item) => (
+          <CountCard key={item.title} {...item} />
+        ))}
       </div>
 
-      {/* 搜索和筛选 */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex flex-1 gap-4 max-w-md">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="搜索项目..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
+      <ProjectsFilter viewMode={viewMode} setViewMode={setViewMode} />
 
-        <div className="flex gap-2">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40">
-              <Filter className="w-4 h-4 mr-2" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">所有状态</SelectItem>
-              <SelectItem value="healthy">健康</SelectItem>
-              <SelectItem value="warning">警告</SelectItem>
-              <SelectItem value="critical">严重</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={platformFilter} onValueChange={setPlatformFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">所有平台</SelectItem>
-              <SelectItem value="react">React</SelectItem>
-              <SelectItem value="nextjs">Next.js</SelectItem>
-              <SelectItem value="javascript">JavaScript</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={viewMode} onValueChange={(value: 'grid' | 'table') => setViewMode(value)}>
-            <SelectTrigger className="w-24">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="grid">网格</SelectItem>
-              <SelectItem value="table">表格</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* 项目列表 */}
-      {projectsData.length === 0 ? (
-        emptyState
-      ) : filteredAndSortedProjects.length === 0 ? (
-        noMatchState
-      ) : viewMode === 'grid' ? (
+      {viewMode === 'grid' ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredAndSortedProjects.map(renderProjectCard)}
+          {projectsData.map((item) => (
+            <ProjectCard key={item.id} {...item} />
+          ))}
         </div>
       ) : (
-        renderProjectTable()
+        <ProjectsTable projectsData={projectsData} />
       )}
     </>
   )

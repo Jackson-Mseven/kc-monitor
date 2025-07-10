@@ -16,3 +16,8 @@ export const ProjectSchema = z.object({
 export const ProjectParamsSchema = z.object({
   id: IDSchema,
 })
+
+export const ProjectsFilterSchema = z.object({
+  search: z.string().optional(),
+  platform: z.string().optional(),
+})
