@@ -96,7 +96,7 @@ export default async function (fastify: FastifyInstance) {
         where: {
           user_id: user.id,
           team_id: Number(id),
-          status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+          status_id: TEAM_JOIN_REQUEST_STATUS.PENDING,
         },
       })
       if (teamJoinRequest) {
@@ -111,8 +111,8 @@ export default async function (fastify: FastifyInstance) {
           data: {
             user_id: user.id,
             team_id: Number(id),
-            type: TEAM_JOIN_REQUEST_TYPE.INVITE,
-            status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+            type_id: TEAM_JOIN_REQUEST_TYPE.INVITE,
+            status_id: TEAM_JOIN_REQUEST_STATUS.PENDING,
             created_by: Number(userId),
             role_id: Number(team_role_id),
           },
@@ -224,7 +224,7 @@ export default async function (fastify: FastifyInstance) {
         await fastify.redis.del(`${TEAM_REQUEST_REDIS_KEY.INVITE}:${token}`)
         return reply.sendResponse({ ...buildErrorByCode(404), message: '邀请数据不存在' })
       }
-      if (teamJoinRequest.status !== TEAM_JOIN_REQUEST_STATUS.PENDING) {
+      if (teamJoinRequest.status_id !== TEAM_JOIN_REQUEST_STATUS.PENDING) {
         return reply.sendResponse({ ...buildErrorByCode(400), message: '邀请已被处理' })
       }
       if (userId !== teamJoinRequest.user_id) {
@@ -280,7 +280,7 @@ export default async function (fastify: FastifyInstance) {
         await fastify.redis.del(`${TEAM_REQUEST_REDIS_KEY.INVITE}:${token}`)
         return reply.sendResponse({ ...buildErrorByCode(404), message: '邀请数据不存在' })
       }
-      if (teamJoinRequest.status !== TEAM_JOIN_REQUEST_STATUS.PENDING) {
+      if (teamJoinRequest.status_id !== TEAM_JOIN_REQUEST_STATUS.PENDING) {
         return reply.sendResponse({ ...buildErrorByCode(400), message: '邀请已被处理' })
       }
       if (teamJoinRequest.user_id !== Number(userId)) {
@@ -304,7 +304,7 @@ export default async function (fastify: FastifyInstance) {
         await prisma.team_join_requests.update({
           where: { id: teamJoinRequest.id },
           data: {
-            status: TEAM_JOIN_REQUEST_STATUS.APPROVED,
+            status_id: TEAM_JOIN_REQUEST_STATUS.APPROVED,
           },
         })
 
@@ -368,7 +368,7 @@ export default async function (fastify: FastifyInstance) {
         await fastify.redis.del(`${TEAM_REQUEST_REDIS_KEY.INVITE}:${token}`)
         return reply.sendResponse({ ...buildErrorByCode(404), message: '邀请数据不存在' })
       }
-      if (teamJoinRequest.status !== TEAM_JOIN_REQUEST_STATUS.PENDING) {
+      if (teamJoinRequest.status_id !== TEAM_JOIN_REQUEST_STATUS.PENDING) {
         return reply.sendResponse({ ...buildErrorByCode(400), message: '邀请已被处理' })
       }
       if (teamJoinRequest.user_id !== Number(userId)) {
@@ -378,7 +378,7 @@ export default async function (fastify: FastifyInstance) {
       await fastify.prisma.team_join_requests.update({
         where: { id: teamJoinRequest.id },
         data: {
-          status: TEAM_JOIN_REQUEST_STATUS.REJECTED,
+          status_id: TEAM_JOIN_REQUEST_STATUS.REJECTED,
         },
       })
 

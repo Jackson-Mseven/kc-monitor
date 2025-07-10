@@ -215,7 +215,7 @@ export default async function (fastify: FastifyInstance) {
         where: {
           user_id: userId,
           team_id: team.id,
-          status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+          status_id: TEAM_JOIN_REQUEST_STATUS.PENDING,
         },
       })
       if (existingTeamJoinRequest) {
@@ -229,8 +229,8 @@ export default async function (fastify: FastifyInstance) {
         data: {
           user_id: userId,
           team_id: team.id,
-          status: TEAM_JOIN_REQUEST_STATUS.PENDING,
-          type: TEAM_JOIN_REQUEST_TYPE.APPLY,
+          status_id: TEAM_JOIN_REQUEST_STATUS.PENDING,
+          type_id: TEAM_JOIN_REQUEST_TYPE.APPLY,
           role_id: TEAM_ROLES.MEMBER,
         },
       })

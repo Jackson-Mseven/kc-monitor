@@ -59,15 +59,17 @@ model projects {
   slug                  String
   description           String?
   versions              String[]
-  platform              String
   is_archived           Boolean           @default(false)
   updated_at            DateTime?         @db.Timestamp(6)
   pending_deletion      Boolean           @default(false)
   deletion_scheduled_at DateTime?         @db.Timestamp(6)
+  platform_id           Int               @db.SmallInt
   project_members       project_members[]
+  project_platform      project_platform  @relation(fields: [platform_id], references: [id], onDelete: NoAction, map: "platform_id-pkey")
   teams                 teams             @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "team_id_pkey")
 
   @@unique([team_id, slug], map: "projects_team_id_slug_ukey")
+  @@index([team_id], map: "idx_projects_team_id")
 }
 
 model teams {
@@ -108,18 +110,43 @@ model team_roles {
 }
 
 model team_join_requests {
-  id         Int        @id @default(autoincrement())
-  uuid       String     @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at DateTime   @default(now()) @db.Timestamp(6)
-  user_id    Int
-  team_id    Int
-  type       Int
-  status     Int
-  created_by Int?
-  role_id    Int
-  dispose_at DateTime?  @db.Timestamp(6)
-  inviter    users?     @relation("inviter", fields: [created_by], references: [id], onUpdate: NoAction, map: "creacted_by_pkey")
-  team_roles team_roles @relation(fields: [role_id], references: [id], onDelete: NoAction, map: "role_id_pkey")
-  teams      teams      @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "team_id_pkey")
-  users      users      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_id_pkey")
+  id                        Int                       @id @default(autoincrement())
+  uuid                      String                    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at                DateTime                  @default(now()) @db.Timestamp(6)
+  user_id                   Int
+  team_id                   Int
+  type_id                   Int                       @db.SmallInt
+  status_id                 Int                       @db.SmallInt
+  created_by                Int?
+  role_id                   Int                       @db.SmallInt
+  dispose_at                DateTime?                 @db.Timestamp(6)
+  inviter                   users?                    @relation("inviter", fields: [created_by], references: [id], onUpdate: NoAction, map: "creacted_by_pkey")
+  team_roles                team_roles                @relation(fields: [role_id], references: [id], onDelete: NoAction, map: "role_id_pkey")
+  team_join_requests_status team_join_requests_status @relation(fields: [status_id], references: [id], onDelete: Cascade, map: "status_id-pkey")
+  teams                     teams                     @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "team_id_pkey")
+  team_join_requests_type   team_join_requests_type   @relation(fields: [type_id], references: [id], onDelete: Cascade, map: "type_id")
+  users                     users                     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_id_pkey")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model project_platform {
+  id       Int        @id @db.SmallInt
+  uuid     String     @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  neme     String
+  type     Int        @db.SmallInt
+  projects projects[]
+}
+
+model team_join_requests_status {
+  id                 Int                  @id @db.SmallInt
+  uuid               String               @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  text               String
+  team_join_requests team_join_requests[]
+}
+
+model team_join_requests_type {
+  id                 Int                  @id @db.SmallInt
+  uuid               String               @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  text               String
+  team_join_requests team_join_requests[]
 }

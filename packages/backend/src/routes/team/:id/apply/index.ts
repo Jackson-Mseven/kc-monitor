@@ -101,9 +101,9 @@ export default async function (fastify: FastifyInstance) {
       const teamJoinRequests = await fastify.prisma.team_join_requests.findMany({
         where: {
           ...searchCondition,
-          ...(Number.isFinite(Number(status)) ? { status: Number(status) } : {}),
+          ...(Number.isFinite(Number(status)) ? { status_id: Number(status) } : {}),
           team_id: Number(id),
-          type: TEAM_JOIN_REQUEST_TYPE.APPLY,
+          type_id: TEAM_JOIN_REQUEST_TYPE.APPLY,
         },
         include: {
           users: {
@@ -127,13 +127,13 @@ export default async function (fastify: FastifyInstance) {
         where: baseWhereCondition,
       })
       const pendingCount = await fastify.prisma.team_join_requests.count({
-        where: { ...baseWhereCondition, status: 0 },
+        where: { ...baseWhereCondition, status_id: 0 },
       })
       const approvedCount = await fastify.prisma.team_join_requests.count({
-        where: { ...baseWhereCondition, status: 1 },
+        where: { ...baseWhereCondition, status_id: 1 },
       })
       const rejectedCount = await fastify.prisma.team_join_requests.count({
-        where: { ...baseWhereCondition, status: 2 },
+        where: { ...baseWhereCondition, status_id: 2 },
       })
 
       return reply.sendResponse({
@@ -175,7 +175,7 @@ export default async function (fastify: FastifyInstance) {
         where: {
           id: Number(requestId),
           team_id: Number(id),
-          type: TEAM_JOIN_REQUEST_TYPE.APPLY,
+          type_id: TEAM_JOIN_REQUEST_TYPE.APPLY,
         },
         include: {
           users: {
@@ -191,7 +191,7 @@ export default async function (fastify: FastifyInstance) {
       if (!teamJoinRequest) {
         return reply.sendResponse({ ...buildErrorByCode(404), message: '申请不存在' })
       }
-      if (teamJoinRequest.status !== TEAM_JOIN_REQUEST_STATUS.PENDING) {
+      if (teamJoinRequest.status_id !== TEAM_JOIN_REQUEST_STATUS.PENDING) {
         return reply.sendResponse({ ...buildErrorByCode(400), message: '申请已被处理' })
       }
       if (teamJoinRequest.users.team_id) {
@@ -202,7 +202,7 @@ export default async function (fastify: FastifyInstance) {
         await prisma.team_join_requests.update({
           where: { id: teamJoinRequest.id },
           data: {
-            status: TEAM_JOIN_REQUEST_STATUS.APPROVED,
+            status_id: TEAM_JOIN_REQUEST_STATUS.APPROVED,
             dispose_at: new Date(),
           },
         })
@@ -211,10 +211,10 @@ export default async function (fastify: FastifyInstance) {
           where: {
             user_id: teamJoinRequest.user_id,
             id: { not: teamJoinRequest.id },
-            status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+            status_id: TEAM_JOIN_REQUEST_STATUS.PENDING,
           },
           data: {
-            status: TEAM_JOIN_REQUEST_STATUS.CANCELLED,
+            status_id: TEAM_JOIN_REQUEST_STATUS.CANCELLED,
             dispose_at: new Date(),
           },
         })
@@ -259,7 +259,7 @@ export default async function (fastify: FastifyInstance) {
         where: {
           id: Number(requestId),
           team_id: Number(id),
-          type: TEAM_JOIN_REQUEST_TYPE.APPLY,
+          type_id: TEAM_JOIN_REQUEST_TYPE.APPLY,
         },
         include: {
           users: {
@@ -276,14 +276,14 @@ export default async function (fastify: FastifyInstance) {
         return reply.sendResponse({ ...buildErrorByCode(404), message: '申请不存在' })
       }
 
-      if (teamJoinRequest.status !== TEAM_JOIN_REQUEST_STATUS.PENDING) {
+      if (teamJoinRequest.status_id !== TEAM_JOIN_REQUEST_STATUS.PENDING) {
         return reply.sendResponse({ ...buildErrorByCode(400), message: '申请已被处理' })
       }
 
       await fastify.prisma.team_join_requests.update({
         where: { id: teamJoinRequest.id },
         data: {
-          status: TEAM_JOIN_REQUEST_STATUS.REJECTED,
+          status_id: TEAM_JOIN_REQUEST_STATUS.REJECTED,
           dispose_at: new Date(),
         },
       })
@@ -322,8 +322,8 @@ export default async function (fastify: FastifyInstance) {
         where: {
           id: { in: requestIds },
           team_id: Number(id),
-          type: TEAM_JOIN_REQUEST_TYPE.APPLY,
-          status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+          type_id: TEAM_JOIN_REQUEST_TYPE.APPLY,
+          status_id: TEAM_JOIN_REQUEST_STATUS.PENDING,
         },
         include: {
           users: {
@@ -346,7 +346,7 @@ export default async function (fastify: FastifyInstance) {
             id: { in: requests.map((r) => r.id) },
           },
           data: {
-            status: TEAM_JOIN_REQUEST_STATUS.APPROVED,
+            status_id: TEAM_JOIN_REQUEST_STATUS.APPROVED,
             dispose_at: new Date(),
           },
         })
@@ -356,10 +356,10 @@ export default async function (fastify: FastifyInstance) {
           where: {
             user_id: { in: userIds },
             id: { notIn: requests.map((r) => r.id) },
-            status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+            status_id: TEAM_JOIN_REQUEST_STATUS.PENDING,
           },
           data: {
-            status: TEAM_JOIN_REQUEST_STATUS.CANCELLED,
+            status_id: TEAM_JOIN_REQUEST_STATUS.CANCELLED,
             dispose_at: new Date(),
           },
         })
@@ -409,8 +409,8 @@ export default async function (fastify: FastifyInstance) {
         where: {
           id: { in: requestIds },
           team_id: Number(id),
-          type: TEAM_JOIN_REQUEST_TYPE.APPLY,
-          status: TEAM_JOIN_REQUEST_STATUS.PENDING,
+          type_id: TEAM_JOIN_REQUEST_TYPE.APPLY,
+          status_id: TEAM_JOIN_REQUEST_STATUS.PENDING,
         },
         include: {
           users: {
@@ -432,7 +432,7 @@ export default async function (fastify: FastifyInstance) {
           id: { in: requests.map((r) => r.id) },
         },
         data: {
-          status: TEAM_JOIN_REQUEST_STATUS.REJECTED,
+          status_id: TEAM_JOIN_REQUEST_STATUS.REJECTED,
           dispose_at: new Date(),
         },
       })

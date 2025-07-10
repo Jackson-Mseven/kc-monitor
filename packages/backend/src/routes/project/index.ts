@@ -1,12 +1,18 @@
 import { FastifyInstance } from 'fastify'
 import { Project } from 'src/types/project'
 import validErrorHandler from 'src/utils/error/validErrorHandler'
-import { ProjectSchema, CustomResponseSchema, ProjectParamsSchema } from '@kc-monitor/shared'
+import {
+  ProjectSchema,
+  CustomResponseSchema,
+  ProjectParamsSchema,
+  TEAM_PERMISSIONS,
+} from '@kc-monitor/shared'
 import generateReadHandler from 'src/utils/handler/generateReadHandler'
 import generateReadByIdHandler from 'src/utils/handler/generateReadByIdHandler'
 import generateCreateHandler from 'src/utils/handler/generateCreateHandler'
 import generateUpdateHandler from 'src/utils/handler/generateUpdateHandler'
 import generateDeleteHandler from 'src/utils/handler/generateDeleteHandler'
+import { generateTeamAuthPreHandler } from 'src/utils/handler/generateTeamAuthPreHandler'
 
 interface Params {
   Project: {
@@ -15,8 +21,8 @@ interface Params {
 }
 
 interface Body {
-  Create: Pick<Project, 'name' | 'slug' | 'team_id'>
-  Update: Pick<Project, 'name' | 'slug' | 'team_id'>
+  Create: Pick<Project, 'team_id' | 'name' | 'slug' | 'description' | 'platform_id' | 'versions'>
+  Update: Partial<Pick<Project, 'name' | 'slug' | 'description'>>
 }
 
 export default async function (fastify: FastifyInstance) {
@@ -30,6 +36,7 @@ export default async function (fastify: FastifyInstance) {
         description: '获取所有项目',
         response: { 200: CustomResponseSchema },
       },
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_READ)],
     },
     generateReadHandler(fastify, {
       model: 'projects',
@@ -49,6 +56,7 @@ export default async function (fastify: FastifyInstance) {
         params: ProjectParamsSchema,
         response: { 200: CustomResponseSchema },
       },
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_READ)],
     },
     generateReadByIdHandler<Params['Project']>(fastify, {
       model: 'projects',
@@ -71,6 +79,7 @@ export default async function (fastify: FastifyInstance) {
         response: { 201: CustomResponseSchema },
       },
       errorHandler: validErrorHandler,
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_MANAGE)],
     },
     generateCreateHandler<Body['Create']>(fastify, {
       model: 'projects',
@@ -95,6 +104,7 @@ export default async function (fastify: FastifyInstance) {
         response: { 200: CustomResponseSchema },
       },
       errorHandler: validErrorHandler,
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_MANAGE)],
     },
     generateUpdateHandler<Params['Project'], Body['Update']>(fastify, {
       model: 'projects',
@@ -118,6 +128,7 @@ export default async function (fastify: FastifyInstance) {
         response: { 200: CustomResponseSchema },
       },
       errorHandler: validErrorHandler,
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_MANAGE)],
     },
     generateDeleteHandler<Params['Project']>(fastify, {
       model: 'projects',

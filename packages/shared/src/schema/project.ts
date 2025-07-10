@@ -10,7 +10,7 @@ export const ProjectSchema = z.object({
   slug: ProjectSlugSchema,
   description: z.string().optional(),
   versions: z.array(z.string()),
-  platform: z.string(),
+  platform_id: z.number(),
 })
 
 export const ProjectParamsSchema = z.object({

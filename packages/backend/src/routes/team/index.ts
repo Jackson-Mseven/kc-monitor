@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { Team } from 'src/types/team'
 import {
   CustomResponseSchema,
+  TEAM_PERMISSIONS,
   TeamParamsSchema,
   TeamSchema,
   TeamUpdateSchema,
@@ -33,7 +34,7 @@ export default async function (fastify: FastifyInstance) {
         description: '获取所有团队',
         response: { 200: CustomResponseSchema },
       },
-      preHandler: [fastify.authenticate, generateTeamAuthPreHandler('team:read')],
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_READ)],
     },
     generateReadHandler(fastify, {
       model: 'teams',
@@ -53,7 +54,7 @@ export default async function (fastify: FastifyInstance) {
         params: TeamParamsSchema,
         response: { 200: CustomResponseSchema },
       },
-      preHandler: [fastify.authenticate, generateTeamAuthPreHandler('team:read')],
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_READ)],
     },
     generateReadByIdHandler<Params['Team']>(fastify, {
       model: 'teams',
@@ -99,7 +100,7 @@ export default async function (fastify: FastifyInstance) {
         response: { 200: CustomResponseSchema },
       },
       errorHandler: validErrorHandler,
-      preHandler: [fastify.authenticate, generateTeamAuthPreHandler('team:write')],
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_WRITE)],
     },
     generateUpdateHandler<Params['Team'], Body['Update']>(fastify, {
       model: 'teams',
@@ -122,7 +123,7 @@ export default async function (fastify: FastifyInstance) {
         params: TeamParamsSchema,
         response: { 200: CustomResponseSchema },
       },
-      preHandler: [fastify.authenticate, generateTeamAuthPreHandler('team:delete')],
+      preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_DELETE)],
     },
     async (request, reply) => {
       try {
