@@ -14,7 +14,7 @@ import {
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { TeamUpdateSchema } from '@kc-monitor/shared'
+import { TEAM_PERMISSIONS, TeamUpdateSchema } from '@kc-monitor/shared'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
@@ -23,8 +23,8 @@ import { putFetcher } from '@/utils/fetcher'
 import withTeamPermission from '@/hoc/withTeamPermission'
 import useUserInfo from '@/hooks/swr/useUserInfo'
 
-const AuthInput = withTeamPermission(Input, 'team:update')
-const AuthButton = withTeamPermission(Button, 'team:update')
+const AuthInput = withTeamPermission(Input, TEAM_PERMISSIONS.TEAM_WRITE)
+const AuthButton = withTeamPermission(Button, TEAM_PERMISSIONS.TEAM_WRITE)
 
 export default function UpdateTeamFormCard() {
   const router = useRouter()

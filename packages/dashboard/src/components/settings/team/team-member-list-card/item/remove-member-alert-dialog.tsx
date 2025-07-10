@@ -27,7 +27,7 @@ import { User as UserType } from '@kc-monitor/shared'
 import { toast } from 'sonner'
 import TeamRoleIcon from '@/components/common/team-role-icon'
 
-const AuthButton = withTeamPermission(Button, TEAM_PERMISSIONS['TEAM_DELETE'])
+const AuthButton = withTeamPermission(Button, TEAM_PERMISSIONS.TEAM_DELETE)
 
 interface RemoveMemberAlertDialogProps {
   member: Omit<UserType, 'password'>

@@ -1,5 +1,6 @@
 import React from 'react'
 import useUserInfo from '@/hooks/swr/useUserInfo'
+import { TeamPermissionValues } from '@kc-monitor/shared'
 
 /**
  * HOC: 权限校验，没权限时传递 disabled
@@ -7,7 +8,7 @@ import useUserInfo from '@/hooks/swr/useUserInfo'
  */
 export default function withTeamPermission<P extends { disabled?: boolean }>(
   WrappedComponent: React.ComponentType<P>,
-  permission: string,
+  permission: TeamPermissionValues,
   additionalDisables: boolean = false
 ) {
   return function PermissionWrapper(props: P) {

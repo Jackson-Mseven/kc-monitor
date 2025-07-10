@@ -31,7 +31,7 @@ const Item: React.FC<ItemProps> = ({ member }) => {
 
   const AuthSelect = withTeamPermission(
     Select,
-    TEAM_PERMISSIONS['TEAM_MANAGE'],
+    TEAM_PERMISSIONS.TEAM_MANAGE,
     user?.team_role_id === member?.team_role_id
   )
 
