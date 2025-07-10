@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import PlatformSidebar from '@/components/platform/sidebar'
 import ThemeProvider from '@/components/platform/theme-provider'
@@ -15,6 +15,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { usePathname } from 'next/navigation'
 
 export default function RootLayout({
   children,
@@ -22,6 +23,20 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   useAuthGuard()
+  const pathname = usePathname()
+  const breadcrumb = useMemo(() => {
+    const breadcrumb: { label: string; href: string }[] = []
+    const pathSegments = pathname.split('/')
+    pathSegments.forEach((segment, index) => {
+      if (segment) {
+        breadcrumb.push({
+          label: segment.charAt(0).toUpperCase() + segment.slice(1),
+          href: `${pathSegments.slice(0, index + 1).join('/')}`,
+        })
+      }
+    })
+    return breadcrumb
+  }, [pathname])
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
@@ -35,13 +50,18 @@ export default function RootLayout({
                 <Separator orientation="vertical" className="mr-2 h-4" />
                 <Breadcrumb>
                   <BreadcrumbList>
-                    <BreadcrumbItem className="hidden md:block">
-                      <BreadcrumbLink href="#">Platform</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator className="hidden md:block" />
-                    <BreadcrumbItem>
-                      <BreadcrumbPage>Dashboard</BreadcrumbPage>
-                    </BreadcrumbItem>
+                    {breadcrumb.map((item, index) => (
+                      <React.Fragment key={index}>
+                        <BreadcrumbItem>
+                          {index === breadcrumb.length - 1 ? (
+                            <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                          ) : (
+                            <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
+                          )}
+                        </BreadcrumbItem>
+                        {index < breadcrumb.length - 1 && <BreadcrumbSeparator />}
+                      </React.Fragment>
+                    ))}
                   </BreadcrumbList>
                 </Breadcrumb>
               </div>
