@@ -79,7 +79,7 @@ export default function RemoveMemberAlertDialog({
     switch (role) {
       case TEAM_ROLES.OWNER:
         return 'destructive'
-      case TEAM_ROLES.ADMIN:
+      case TEAM_ROLES.MANAGER:
         return 'default'
       default:
         return 'secondary'

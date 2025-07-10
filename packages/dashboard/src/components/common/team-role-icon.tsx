@@ -10,7 +10,7 @@ const TeamRoleIcon = ({ roleId, ...props }: TeamRoleIconProps) => {
   switch (roleId) {
     case TEAM_ROLES.OWNER:
       return <Crown {...props} />
-    case TEAM_ROLES.ADMIN:
+    case TEAM_ROLES.MANAGER:
       return <Shield {...props} />
     default:
       return <User {...props} />

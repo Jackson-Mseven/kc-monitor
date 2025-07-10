@@ -9,9 +9,9 @@ export const TEAM_PERMISSIONS = {
  * 团队角色
  */
 export const TEAM_ROLES = {
-  OWNER: 1,
-  ADMIN: 2,
-  MEMBER: 3,
+  OWNER: 0,
+  MANAGER: 1,
+  MEMBER: 2,
 } as const
 
 /**
