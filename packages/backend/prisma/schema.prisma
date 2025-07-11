@@ -65,7 +65,7 @@ model projects {
   deletion_scheduled_at DateTime?         @db.Timestamp(6)
   platform_id           Int               @db.SmallInt
   project_members       project_members[]
-  project_platform      project_platform  @relation(fields: [platform_id], references: [id], onDelete: NoAction, map: "platform_id-pkey")
+  project_platform      project_platforms @relation(fields: [platform_id], references: [id], onDelete: NoAction, map: "platform_id-pkey")
   teams                 teams             @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "team_id_pkey")
 
   @@unique([team_id, slug], map: "projects_team_id_slug_ukey")
@@ -128,15 +128,6 @@ model team_join_requests {
   users                     users                     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_id_pkey")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model project_platform {
-  id       Int        @id @db.SmallInt
-  uuid     String     @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  neme     String
-  type     Int        @db.SmallInt
-  projects projects[]
-}
-
 model team_join_requests_status {
   id                 Int                  @id @db.SmallInt
   uuid               String               @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -149,4 +140,13 @@ model team_join_requests_type {
   uuid               String               @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   text               String
   team_join_requests team_join_requests[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model project_platforms {
+  id       Int        @id(map: "project_platform_pkey") @db.SmallInt
+  uuid     String     @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  neme     String
+  type     Int        @db.SmallInt
+  projects projects[]
 }
