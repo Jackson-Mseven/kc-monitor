@@ -1,4 +1,5 @@
 import { TEAM_JOIN_REQUEST_STATUS, TEAM_PERMISSIONS, TEAM_ROLES } from '../constants'
+import { Role } from './role'
 import { User } from './user'
 
 export interface Team {
@@ -9,13 +10,7 @@ export interface Team {
   slug: string
 }
 
-export interface TeamRole {
-  id: number
-  uuid: string
-  name: string
-  description: string
-  permissions: string
-}
+export type TeamRole = Role
 
 export type TeamPermissionKeys = keyof typeof TEAM_PERMISSIONS
 export type TeamPermissionValues = (typeof TEAM_PERMISSIONS)[TeamPermissionKeys]

@@ -1,6 +1,10 @@
-import { CustomResponseSchema, TeamRoleParamsSchema, TeamRoleSchema } from '@kc-monitor/shared'
+import {
+  CustomResponseSchema,
+  ProjectRole,
+  TeamRoleParamsSchema,
+  TeamRoleSchema,
+} from '@kc-monitor/shared'
 import { FastifyInstance } from 'fastify'
-import { ProjectRole } from 'src/types/project'
 import validErrorHandler from 'src/utils/error/validErrorHandler'
 import generateCreateHandler from 'src/utils/handler/generateCreateHandler'
 import generateDeleteHandler from 'src/utils/handler/generateDeleteHandler'

@@ -1,18 +1,21 @@
 import { FastifyInstance } from 'fastify'
-import { Project } from 'src/types/project'
 import validErrorHandler from 'src/utils/error/validErrorHandler'
 import {
-  ProjectSchema,
+  CreateProjectSchema,
   CustomResponseSchema,
   ProjectParamsSchema,
   TEAM_PERMISSIONS,
+  UpdateProjectSchema,
+  generateProjectDSN,
+  Project,
 } from '@kc-monitor/shared'
 import generateReadHandler from 'src/utils/handler/generateReadHandler'
 import generateReadByIdHandler from 'src/utils/handler/generateReadByIdHandler'
-import generateCreateHandler from 'src/utils/handler/generateCreateHandler'
 import generateUpdateHandler from 'src/utils/handler/generateUpdateHandler'
 import generateDeleteHandler from 'src/utils/handler/generateDeleteHandler'
 import { generateTeamAuthPreHandler } from 'src/utils/handler/generateTeamAuthPreHandler'
+import buildPrismaError from 'src/utils/prisma/buildPrismaError'
+import buildErrorByCode from 'src/utils/error/buildErrorByCode'
 
 interface Params {
   Project: {
@@ -21,8 +24,8 @@ interface Params {
 }
 
 interface Body {
-  Create: Pick<Project, 'team_id' | 'name' | 'slug' | 'description' | 'platform_id' | 'versions'>
-  Update: Partial<Pick<Project, 'name' | 'slug' | 'description'>>
+  Create: Pick<Project, 'team_id' | 'name' | 'description' | 'platform_id'>
+  Update: Partial<Pick<Project, 'name' | 'description'>>
 }
 
 export default async function (fastify: FastifyInstance) {
@@ -75,16 +78,65 @@ export default async function (fastify: FastifyInstance) {
         tags: ['project'],
         summary: '创建项目',
         description: '创建项目',
-        body: ProjectSchema,
+        body: CreateProjectSchema,
         response: { 201: CustomResponseSchema },
       },
       errorHandler: validErrorHandler,
       preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_MANAGE)],
     },
-    generateCreateHandler<Body['Create']>(fastify, {
-      model: 'projects',
-      uniqueMessage: '项目标识已经存在',
-    })
+    async (request, reply) => {
+      const { team_id, platform_id } = request.body
+
+      const team = await fastify.prisma.teams.findUnique({
+        where: { id: team_id },
+        select: {
+          slug: true,
+        },
+      })
+      if (!team) {
+        return reply.sendResponse({ ...buildErrorByCode(404), message: '团队不存在' })
+      }
+
+      const platform = await fastify.prisma.project_platforms.findUnique({
+        where: { id: platform_id },
+      })
+      if (!platform) {
+        return reply.sendResponse({ ...buildErrorByCode(404), message: '项目类型不存在' })
+      }
+
+      const project = await fastify.prisma.$transaction(async (prisma) => {
+        try {
+          const createdProject = await prisma.projects.create({
+            data: request.body,
+          })
+
+          const dsn = generateProjectDSN({
+            publicKey: createdProject.uuid,
+            host: (process.env.HOST ?? '') + (process.env.PORT ?? ''),
+            projectId: createdProject.id,
+          })
+
+          const updatedProject = await prisma.projects.update({
+            where: { id: createdProject.id },
+            data: { dsn },
+          })
+
+          return updatedProject
+        } catch (error: any) {
+          if (error.code === 'P2002') {
+            const response = buildPrismaError(error.code, {
+              message: '项目已存在',
+            })
+            return reply.sendResponse({
+              code: response?.code,
+              ...response?.data,
+            })
+          }
+        }
+      })
+
+      return reply.sendResponse({ data: project })
+    }
   )
 
   // 更新项目信息
@@ -98,9 +150,7 @@ export default async function (fastify: FastifyInstance) {
         tags: ['project'],
         summary: '更新项目',
         description: '更新项目',
-        body: ProjectSchema.partial().refine((data) => Object.keys(data).length > 0, {
-          message: '更新内容不能为空',
-        }),
+        body: UpdateProjectSchema,
         response: { 200: CustomResponseSchema },
       },
       errorHandler: validErrorHandler,

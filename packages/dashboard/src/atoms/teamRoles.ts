@@ -1,13 +1,7 @@
 import { atomWithQuery } from 'jotai-tanstack-query'
 import { useAtomValue } from 'jotai'
 import { getFetcher } from '@/utils/fetcher'
-
-export interface TeamRole {
-  id: number
-  name: string
-  description?: string
-  permissions?: string[]
-}
+import { TeamRole } from '@kc-monitor/shared'
 
 export const teamRolesAtom = atomWithQuery(() => ({
   queryKey: ['team-roles'],

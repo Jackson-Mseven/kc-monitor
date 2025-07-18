@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify'
-import { Team } from 'src/types/team'
 import {
   CustomResponseSchema,
+  Team,
   TEAM_PERMISSIONS,
   TeamParamsSchema,
   TeamSchema,

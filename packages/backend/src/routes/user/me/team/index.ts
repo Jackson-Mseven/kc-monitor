@@ -1,5 +1,6 @@
 import {
   CustomResponseSchema,
+  Team,
   TEAM_JOIN_REQUEST_STATUS,
   TEAM_JOIN_REQUEST_TYPE,
   TEAM_PERMISSIONS,
@@ -7,7 +8,6 @@ import {
   TeamSchema,
 } from '@kc-monitor/shared'
 import { FastifyInstance } from 'fastify'
-import { Team } from 'src/types/team'
 import buildErrorByCode from 'src/utils/error/buildErrorByCode'
 import validErrorHandler from 'src/utils/error/validErrorHandler'
 import { generateTeamAuthPreHandler } from 'src/utils/handler/generateTeamAuthPreHandler'

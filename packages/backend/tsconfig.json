@@ -11,5 +11,5 @@
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "jsx": "react-jsx"
   },
-  "include": ["./src"]
+  "include": ["./src", "../shared/src/types/role.ts"]
 }
