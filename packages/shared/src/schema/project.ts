@@ -22,6 +22,12 @@ export const ProjectParamsSchema = z.object({
   id: IDSchema,
 })
 
+export const ProjectQuerySchema = z.object({
+  team_id: z.string(),
+  platform_id: z.string().optional(),
+  search: z.string().optional(),
+})
+
 export const CreateProjectSchema = ProjectSchema.pick({
   team_id: true,
   name: true,

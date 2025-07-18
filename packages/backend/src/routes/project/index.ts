@@ -8,19 +8,24 @@ import {
   UpdateProjectSchema,
   generateProjectDSN,
   Project,
+  ProjectQuerySchema,
 } from '@kc-monitor/shared'
-import generateReadHandler from 'src/utils/handler/generateReadHandler'
 import generateReadByIdHandler from 'src/utils/handler/generateReadByIdHandler'
 import generateUpdateHandler from 'src/utils/handler/generateUpdateHandler'
 import generateDeleteHandler from 'src/utils/handler/generateDeleteHandler'
 import { generateTeamAuthPreHandler } from 'src/utils/handler/generateTeamAuthPreHandler'
 import buildPrismaError from 'src/utils/prisma/buildPrismaError'
 import buildErrorByCode from 'src/utils/error/buildErrorByCode'
+import { Prisma } from '@prisma/client'
 
 interface Params {
   Project: {
     id: string
   }
+}
+
+interface Querystring {
+  Project: { team_id: string; search?: string; platform_id?: string }
 }
 
 interface Body {
@@ -29,21 +34,47 @@ interface Body {
 }
 
 export default async function (fastify: FastifyInstance) {
-  // 获取所有项目
-  fastify.get(
+  // 获取指定项目
+  fastify.get<{
+    Querystring: Querystring['Project']
+  }>(
     '/',
     {
       schema: {
         tags: ['project'],
         summary: '获取所有项目',
         description: '获取所有项目',
+        querystring: ProjectQuerySchema,
         response: { 200: CustomResponseSchema },
       },
       preHandler: [fastify.authenticate, generateTeamAuthPreHandler(TEAM_PERMISSIONS.TEAM_READ)],
     },
-    generateReadHandler(fastify, {
-      model: 'projects',
-    })
+    async (request, reply) => {
+      const { team_id, search, platform_id } = request.query
+
+      const filters: Prisma.projectsWhereInput = {}
+      if (team_id) {
+        filters.team_id = Number(team_id)
+      }
+      if (platform_id) {
+        filters.platform_id = Number(platform_id)
+      }
+      if (search) {
+        filters.OR = [
+          { name: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
+        ]
+      }
+
+      const projects = await fastify.prisma.projects.findMany({
+        where: filters,
+        include: {
+          project_platforms: true,
+        },
+      })
+
+      return reply.sendResponse({ data: projects })
+    }
   )
 
   // 获取单个项目

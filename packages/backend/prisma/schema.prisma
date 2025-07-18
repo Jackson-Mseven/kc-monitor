@@ -65,7 +65,7 @@ model projects {
   dsn                   String?
   project_members       project_members[]
   project_versions      project_versions[]
-  project_platform      project_platforms  @relation(fields: [platform_id], references: [id], onDelete: NoAction, map: "platform_id-pkey")
+  project_platforms     project_platforms  @relation(fields: [platform_id], references: [id], onDelete: NoAction, map: "platform_id-pkey")
   teams                 teams              @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "team_id_pkey")
 
   @@unique([team_id, name], map: "projects-ukey")
