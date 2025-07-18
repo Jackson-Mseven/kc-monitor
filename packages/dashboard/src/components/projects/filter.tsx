@@ -13,24 +13,59 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ProjectsFilterSchema } from '@kc-monitor/shared'
 import { Form, FormControl, FormField, FormItem } from '../ui/form'
+import useProjectPlatforms from '@/hooks/swr/useProjectPlatforms'
+import { Skeleton } from '../ui/skeleton'
+import ProjectsCard from './projects-card'
+import ProjectsTable from './projects-table'
+import { Filters } from '@/hooks/swr/useTeamProjects'
+
+export const VIEW_MODES = [
+  {
+    name: '网格',
+    Component: ProjectsCard,
+  },
+  {
+    name: '表格',
+    Component: ProjectsTable,
+  },
+].map((item, index) => ({
+  ...item,
+  id: String(index),
+}))
+
+export type ViewModeId = (typeof VIEW_MODES)[number]['id']
 
 interface ProjectsFilterProps {
-  viewMode: 'grid' | 'table'
-  setViewMode: (value: 'grid' | 'table') => void
+  viewMode: ViewModeId
+  setViewMode: React.Dispatch<React.SetStateAction<ViewModeId>>
+  setFilters: React.Dispatch<React.SetStateAction<Filters>>
 }
 
-const Filter: React.FC<ProjectsFilterProps> = ({ viewMode, setViewMode }) => {
+const DEFAULT_PLATFORM = {
+  id: -1,
+  name: '所有平台',
+}
+
+const Filter: React.FC<ProjectsFilterProps> = ({ viewMode, setViewMode, setFilters }) => {
+  const { projectPlatforms, isLoading } = useProjectPlatforms()
+
   const form = useForm<z.infer<typeof ProjectsFilterSchema>>({
     resolver: zodResolver(ProjectsFilterSchema),
     defaultValues: {
-      search: '',
-      platform: 'all',
+      platform_id: String(DEFAULT_PLATFORM.id),
     },
   })
 
   const handleSubmit = (data: z.infer<typeof ProjectsFilterSchema>) => {
-    console.log(data)
+    const { platform_id, search } = data
+    if (platform_id === String(DEFAULT_PLATFORM.id)) {
+      setFilters({ search })
+    } else {
+      setFilters(data)
+    }
   }
+
+  if (isLoading) return <Skeleton className="w-full h-9" />
 
   return (
     <Form {...form}>
@@ -66,7 +101,7 @@ const Filter: React.FC<ProjectsFilterProps> = ({ viewMode, setViewMode }) => {
           <div className="flex gap-2">
             <FormField
               control={form.control}
-              name="platform"
+              name="platform_id"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -76,7 +111,7 @@ const Filter: React.FC<ProjectsFilterProps> = ({ viewMode, setViewMode }) => {
                         field.onChange(value)
                         handleSubmit({
                           search: form.getValues('search'),
-                          platform: value,
+                          platform_id: value,
                         })
                       }}
                     >
@@ -84,10 +119,13 @@ const Filter: React.FC<ProjectsFilterProps> = ({ viewMode, setViewMode }) => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">所有平台</SelectItem>
-                        <SelectItem value="react">React</SelectItem>
-                        <SelectItem value="nextjs">Next.js</SelectItem>
-                        <SelectItem value="javascript">JavaScript</SelectItem>
+                        {[DEFAULT_PLATFORM, ...projectPlatforms]?.map((item) => {
+                          return (
+                            <SelectItem key={item.id} value={String(item.id)}>
+                              {item.name}
+                            </SelectItem>
+                          )
+                        })}
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -95,16 +133,18 @@ const Filter: React.FC<ProjectsFilterProps> = ({ viewMode, setViewMode }) => {
               )}
             />
 
-            <Select
-              value={viewMode}
-              onValueChange={(value: 'grid' | 'table') => setViewMode(value)}
-            >
+            <Select value={viewMode} onValueChange={(value: ViewModeId) => setViewMode(value)}>
               <SelectTrigger className="w-24">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="grid">网格</SelectItem>
-                <SelectItem value="table">表格</SelectItem>
+                {VIEW_MODES.map((mode) => {
+                  return (
+                    <SelectItem key={mode.id} value={mode.id}>
+                      {mode.name}
+                    </SelectItem>
+                  )
+                })}
               </SelectContent>
             </Select>
           </div>

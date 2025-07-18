@@ -12,7 +12,7 @@ export interface Project {
   updated_at: Date
   pending_deletion: boolean
   deletion_scheduled_at?: Date
-  platform_id: number
+  platform_id: ProjectPlatformId
   dsn: string
 }
 

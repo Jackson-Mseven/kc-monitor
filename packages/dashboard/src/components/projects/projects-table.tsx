@@ -14,11 +14,17 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '../ui/dropdown-menu'
-import { PLATFORM_ICONS, STATUS_COLORS } from '@/app/(platform)/insights/projects/page'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
+import { TeamProject } from '@/hooks/swr/useTeamProjects'
+import ProjectPlatformIcon from '../common/project-platform-icon'
+import { STATUS_COLORS } from './constants'
 
-const ProjectsTable = ({ projectsData }: { projectsData: any }) => {
+interface ProjectsTableProps {
+  list: TeamProject[]
+}
+
+const ProjectsTable: React.FC<ProjectsTableProps> = ({ list }) => {
   const [sortBy, setSortBy] = useState('name')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
 
@@ -85,27 +91,29 @@ const ProjectsTable = ({ projectsData }: { projectsData: any }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {projectsData.map((project: any) => {
-            const PlatformIcon = PLATFORM_ICONS[project.platform as keyof typeof PLATFORM_ICONS]
-
+          {list.map((item: any) => {
+            item = { ...item, status: 'healthy', errors: 2, performance: 98, members: 3 }
             return (
-              <TableRow key={project.id} className="hover:bg-muted/50">
+              <TableRow key={item.id} className="hover:bg-muted/50">
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <div className="p-1.5 bg-muted rounded">
-                      <PlatformIcon className="w-4 h-4" />
+                      <ProjectPlatformIcon
+                        projectPlatformId={item.platform_id}
+                        className="w-4 h-4"
+                      />
                     </div>
                     <div>
-                      <div className="font-medium">{project.name}</div>
-                      <div className="text-sm text-muted-foreground">{project.description}</div>
+                      <div className="font-medium">{item.name}</div>
+                      <div className="text-sm text-muted-foreground">{item.description}</div>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge className={STATUS_COLORS[project.status as keyof typeof STATUS_COLORS]}>
-                    {project.status === 'healthy'
+                  <Badge className={STATUS_COLORS[item.status as keyof typeof STATUS_COLORS]}>
+                    {item.status === 'healthy'
                       ? '健康'
-                      : project.status === 'warning'
+                      : item.status === 'warning'
                         ? '警告'
                         : '严重'}
                   </Badge>
@@ -114,16 +122,16 @@ const ProjectsTable = ({ projectsData }: { projectsData: any }) => {
                   <div className="flex items-center gap-2">
                     <span
                       className={
-                        project.errors > 50
+                        item.errors > 50
                           ? 'text-red-600'
-                          : project.errors > 20
+                          : item.errors > 20
                             ? 'text-yellow-600'
                             : 'text-green-600'
                       }
                     >
-                      {project.errors}
+                      {item.errors}
                     </span>
-                    {project.trend === 'up' ? (
+                    {item.trend === 'up' ? (
                       <TrendingUp className="w-3 h-3 text-green-500" />
                     ) : (
                       <TrendingDown className="w-3 h-3 text-red-500" />
@@ -133,19 +141,19 @@ const ProjectsTable = ({ projectsData }: { projectsData: any }) => {
                 <TableCell>
                   <span
                     className={
-                      project.performance > 95
+                      item.performance > 95
                         ? 'text-green-600'
-                        : project.performance > 90
+                        : item.performance > 90
                           ? 'text-yellow-600'
                           : 'text-red-600'
                     }
                   >
-                    {project.performance}%
+                    {item.performance}%
                   </span>
                 </TableCell>
-                <TableCell>{project.members}</TableCell>
+                <TableCell>{item.members}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {formatDistanceToNow(project.lastEvent, { addSuffix: true, locale: zhCN })}
+                  {formatDistanceToNow(item.created_at, { addSuffix: true, locale: zhCN })}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
@@ -156,13 +164,13 @@ const ProjectsTable = ({ projectsData }: { projectsData: any }) => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link href={`/insights/projects/${project.id}`}>
+                        <Link href={`/insights/projects/${item.id}`}>
                           <ExternalLink className="w-4 h-4 mr-2" />
                           查看详情
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href={`/insights/projects/${project.id}/settings`}>
+                        <Link href={`/insights/projects/${item.id}/settings`}>
                           <Settings className="w-4 h-4 mr-2" />
                           项目设置
                         </Link>

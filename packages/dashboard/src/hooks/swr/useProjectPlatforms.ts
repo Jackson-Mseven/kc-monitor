@@ -1,10 +1,9 @@
-import { getFetcher } from '@/utils/fetcher'
+import { projectPlatformsAtom } from '@/atoms/projectPlatforms'
 import { ProjectPlatform } from '@kc-monitor/shared'
-import useSWR from 'swr'
+import { useAtomValue } from 'jotai'
 
-const useProjectPlatforms = () => {
-  const { data, isLoading, error } = useSWR('/project/platform', getFetcher)
-
+export const useProjectPlatforms = () => {
+  const { data, isLoading, error } = useAtomValue(projectPlatformsAtom)
   return {
     projectPlatforms: data?.data as ProjectPlatform[],
     isLoading,

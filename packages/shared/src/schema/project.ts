@@ -44,5 +44,5 @@ export const UpdateProjectSchema = makeAtLeastOneField(
 
 export const ProjectsFilterSchema = z.object({
   search: z.string().optional(),
-  platform: z.string().optional(),
+  platform_id: z.string().optional(),
 })

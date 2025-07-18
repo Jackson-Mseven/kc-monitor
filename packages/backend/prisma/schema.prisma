@@ -144,13 +144,14 @@ model team_join_requests_type {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model project_platforms {
-  id              Int        @id(map: "project_platform_pkey") @db.SmallInt
-  uuid            String     @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name            String
-  type            Int        @db.SmallInt
-  install_command String     @map("install-command")
-  configuration   String
-  projects        projects[]
+  id                     Int                    @id(map: "project_platform_pkey") @db.SmallInt
+  uuid                   String                 @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                   String
+  type_id                Int                    @db.SmallInt
+  install_command        String                 @map("install-command")
+  configuration          String
+  project_platform_types project_platform_types @relation(fields: [type_id], references: [id], onDelete: NoAction, map: "project_platforms-type_id-pkey")
+  projects               projects[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -168,4 +169,11 @@ model project_versions {
   projects    projects  @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "project_versions-project_id-pkey")
 
   @@unique([project_id, version], map: "project_versions-ukey")
+}
+
+model project_platform_types {
+  id                Int                 @id @db.SmallInt
+  name              String
+  description       String?
+  project_platforms project_platforms[]
 }
