@@ -17,6 +17,7 @@ module.exports = {
     { name: 'dashboard' },
     { name: 'shared' },
     { name: 'email-renderer' },
+    { name: 'react-template' },
   ],
   scopeOverrides: {},
   allowCustomScopes: false, // 关闭手动输入，只允许选择

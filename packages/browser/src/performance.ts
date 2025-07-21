@@ -17,11 +17,12 @@ export function addPerformanceObservers(send: (event: Event) => void) {
           value: entry.startTime,
           timestamp: Date.now(),
         })
-      } else if (entry.entryType === 'layout-shift' && !entry.hadRecentInput) {
+      } else if (entry.entryType === 'layout-shift' /* && !entry.hadRecentInput */) {
         send({
           type: 'performance',
           metric: 'CLS',
-          value: entry.value,
+          value: 999,
+          // value: entry.value,
           timestamp: Date.now(),
         })
       }

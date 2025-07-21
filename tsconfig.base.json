@@ -18,6 +18,7 @@
     "baseUrl": ".",
     "paths": {
       "@kc-monitor/core": ["packages/core/src"],
+      "@kc-monitor/brwoser": ["packages/brwoser/src"],
       "@kc-monitor/react": ["packages/react/src"],
       "@kc-monitor/shared": ["packages/shared/src"]
     }

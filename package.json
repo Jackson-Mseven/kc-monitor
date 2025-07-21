@@ -12,7 +12,8 @@
     "tokei": "tokei --exclude pnpm-lock.yaml"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "templates/*"
   ],
   "config": {
     "commitizen": {
@@ -48,6 +49,7 @@
   "pnpm": {
     "overrides": {
       "@kc-monitor/core": "link:packages/core",
+      "@kc-monitor/browser": "link:packages/browser",
       "@kc-monitor/react": "link:packages/react",
       "@kc-monitor/shared": "link:packages/shared",
       "@kc-monitor/email-renderer": "link:packages/email-renderer"

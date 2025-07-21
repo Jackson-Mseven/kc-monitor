@@ -13,6 +13,8 @@ export class MonitorClient {
   }
 
   captureException(error: Error, context?: Record<string, any>) {
+    console.log('error---', error)
+    console.log('context---', context)
     this.sendEvent({
       type: 'error',
       message: error.message,
