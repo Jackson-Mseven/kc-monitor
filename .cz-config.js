@@ -11,6 +11,7 @@ module.exports = {
   scopes: [
     { name: 'entry' },
     { name: 'core' },
+    { name: 'browser' },
     { name: 'react' },
     { name: 'backend' },
     { name: 'dashboard' },

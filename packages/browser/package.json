@@ -1,7 +1,7 @@
 {
-  "name": "@kc-monitor/react",
+  "name": "@kc-monitor/browser",
   "version": "0.1.0",
-  "description": "React 平台 SDK：集成 ErrorBoundary、React Profiler",
+  "description": "JS 平台 SDK：实现 BrowserClient、默认集成 transport、错误/性能采集",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -21,6 +21,6 @@
     "react": "^16.14.0 || 17.x || 18.x || 19.x"
   },
   "dependencies": {
-    "@kc-monitor/browser": "workspace:*"
+    "@kc-monitor/core": "workspace:*"
   }
 }

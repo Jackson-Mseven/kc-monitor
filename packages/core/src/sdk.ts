@@ -1,9 +1,12 @@
-import { monitor } from './monitor'
-import { collectPerformance } from './performance'
-import { MonitorConfig } from './types'
+import { MonitorClient } from './client'
+import { getCurrentClient, initClient } from './hub'
+import { MonitorOptions } from './types'
 
-export async function init(config: MonitorConfig) {
-  monitor.config = config
+export function init(options: MonitorOptions) {
+  const client = new MonitorClient(options)
+  initClient(client)
+}
 
-  collectPerformance()
+export function captureException(error: Error, context?: Record<string, any>) {
+  getCurrentClient()?.captureException(error, context)
 }
