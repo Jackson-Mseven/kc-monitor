@@ -1,8 +1,6 @@
-import { init as initCore, monitor } from '@kc-monitor/core'
-import { MonitorConfig } from 'packages/core/src/types'
-import { version } from 'react'
+import type { MonitorOptions } from '@kc-monitor/core'
+import { init as initBrowser } from '@kc-monitor/browser'
 
-export async function init(config: MonitorConfig): Promise<void> {
-  monitor.context = { framework: 'react', version }
-  initCore(config)
+export function init(options: MonitorOptions) {
+  initBrowser(options)
 }
