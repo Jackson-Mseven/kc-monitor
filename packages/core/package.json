@@ -10,5 +10,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.7.1"
+  "packageManager": "pnpm@10.7.1",
+  "dependencies": {
+    "idb": "^8.0.3"
+  }
 }

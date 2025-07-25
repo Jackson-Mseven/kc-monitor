@@ -1,20 +1,17 @@
-import type { Event, MonitorOptions, Transport } from './types'
-import { BeaconTransport } from './transport'
+import type { Event, MonitorOptions, TransportInterface } from './types'
 
-export class MonitorClient {
-  private transport: Transport
+export abstract class MonitorClient<O extends MonitorOptions = MonitorOptions> {
+  private _transport: TransportInterface
 
-  constructor(private options: MonitorOptions) {
-    this.transport = options.transport || new BeaconTransport(options.dsn)
+  constructor(options: O) {
+    this._transport = options.transport
   }
 
   sendEvent(event: Event) {
-    this.transport.send(event)
+    this._transport.send(JSON.stringify(event))
   }
 
-  captureException(error: Error, context?: Record<string, any>) {
-    console.log('error---', error)
-    console.log('context---', context)
+  captureException(error: Error, context?: Record<string, unknown>) {
     this.sendEvent({
       type: 'error',
       message: error.message,

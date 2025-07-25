@@ -7,7 +7,10 @@
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "format": "prettier --write .",
     "commit": "git add . && cz",
-    "build": "tsc -b",
+    "build:core": "lerna run build --scope=@kc-monitor/core",
+    "build:browser": "lerna run build --scope=@kc-monitor/browser",
+    "build:react": "lerna run build --scope=@kc-monitor/react",
+    "build:sdk": "npm run build:core && npm run build:browser && npm run build:react",
     "clean": "rm -rf packages/*/dist",
     "tokei": "tokei --exclude pnpm-lock.yaml"
   },
