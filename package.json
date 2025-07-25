@@ -7,6 +7,8 @@
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "format": "prettier --write .",
     "commit": "git add . && cz",
+    "dev:backend": "lerna run dev --scope=@kc-monitor/backend",
+    "dev:dashboard": "lerna run dev --scope=@kc-monitor/dashboard",
     "build:core": "lerna run build --scope=@kc-monitor/core",
     "build:browser": "lerna run build --scope=@kc-monitor/browser",
     "build:react": "lerna run build --scope=@kc-monitor/react",
@@ -16,7 +18,8 @@
   },
   "workspaces": [
     "packages/*",
-    "templates/*"
+    "templates/*",
+    "apps/*"
   ],
   "config": {
     "commitizen": {
@@ -54,8 +57,8 @@
       "@kc-monitor/core": "link:packages/core",
       "@kc-monitor/browser": "link:packages/browser",
       "@kc-monitor/react": "link:packages/react",
-      "@kc-monitor/shared": "link:packages/shared",
-      "@kc-monitor/email-renderer": "link:packages/email-renderer"
+      "@kc-monitor/shared": "link:apps/shared",
+      "@kc-monitor/email-renderer": "link:apps/email-renderer"
     }
   }
 }
