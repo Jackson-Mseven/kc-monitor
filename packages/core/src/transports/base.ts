@@ -1,4 +1,4 @@
-import { MakeRequest, TransportResponse } from '../types'
+import type { MakeRequest, TransportResponse } from '../types'
 
 export type DropReason = 'ratelimit_backoff' | 'queue_overflow' | 'network_error'
 

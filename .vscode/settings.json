@@ -18,6 +18,7 @@
     "multer",
     "nxcache",
     "rkey",
+    "rollup",
     "sonner",
     "tokei",
     "ttfb",

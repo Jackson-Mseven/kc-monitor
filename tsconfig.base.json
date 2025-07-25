@@ -18,9 +18,9 @@
     "baseUrl": ".",
     "paths": {
       "@kc-monitor/core": ["packages/core/src"],
-      "@kc-monitor/brwoser": ["packages/brwoser/src"],
+      "@kc-monitor/browser": ["packages/browser/src"],
       "@kc-monitor/react": ["packages/react/src"],
-      "@kc-monitor/shared": ["packages/shared/src"]
+      "@kc-monitor/shared": ["apps/shared/src"]
     }
   }
 }

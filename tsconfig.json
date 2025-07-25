@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.base.json",
   "files": [],
-  "include": [],
+  "include": ["scripts/*"],
   "references": [{ "path": "packages/core" }, { "path": "packages/react" }]
 }

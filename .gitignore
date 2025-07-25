@@ -7,6 +7,7 @@ package-lock.json
 # build and test
 # SDK builds
 build/
+.rollup.cache
 # various integration test builds
 dist/
 coverage/

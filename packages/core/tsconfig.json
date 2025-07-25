@@ -2,9 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist",
+    "outDir": null,
+    "module": "ESNext",
     "composite": true,
-    "declaration": true
+    "declaration": true,
+    "declarationDir": "./types"
   },
   "include": ["src"],
   "exclude": ["dist"]

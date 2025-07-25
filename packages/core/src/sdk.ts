@@ -1,6 +1,6 @@
 import { MonitorClient } from './client'
 import { getCurrentClient, initClient } from './hub'
-import { ClientClass, MonitorOptions } from './types'
+import type { ClientClass, MonitorOptions } from './types'
 
 export function init<C extends MonitorClient, O extends MonitorOptions>(
   clientClass: ClientClass<C, O>,
