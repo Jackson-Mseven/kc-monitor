@@ -9,5 +9,5 @@
   },
   "include": ["src"],
   "exclude": ["dist"],
-  "references": [{ "path": "../core" }]
+  "references": [{ "path": "../core" }, { "path": "../browser" }]
 }
