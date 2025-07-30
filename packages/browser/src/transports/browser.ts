@@ -9,13 +9,11 @@ import { beaconRequest } from './beacon'
 export const createBrowserTransport = () =>
   createTransport(
     {
-      bufferSize: 32,
       getCategoryFromPayload: (payload) => {
-        const parsed = JSON.parse(payload)
-        return parsed.type || 'default'
+        return JSON.parse(payload).type || 'default'
       },
-      recordDroppedEvent: (reason, category) => {
-        console.log(`[Dropped] ${reason} in category ${category}`)
+      recordDroppedEvent: (type, options) => {
+        console.log(`[Dropped] ${type} in category ${options.category}`)
       },
     },
     supportBeacon ? beaconRequest : fetchRequest
