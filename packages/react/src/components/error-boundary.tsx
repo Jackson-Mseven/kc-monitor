@@ -1,34 +1,48 @@
-import React from 'react'
 import { captureException } from '@kc-monitor/core'
+import React, { PropsWithChildren } from 'react'
 
-interface Props {
-  children: React.ReactNode
+interface ErrorBoundaryProps {
   fallback?: React.ReactNode
+  onError?: (error: Error, componentStack: string) => void
 }
 
-interface State {
-  hasError: boolean
+interface ErrorBoundaryState {
+  error: Error | null
+  componentStack: string
 }
 
-export class ErrorBoundary extends React.Component<Props, State> {
-  constructor(props: Props) {
+export class ErrorBoundary extends React.Component<
+  PropsWithChildren<ErrorBoundaryProps>,
+  ErrorBoundaryState
+> {
+  constructor(props: PropsWithChildren<ErrorBoundaryProps>) {
     super(props)
-    this.state = { hasError: false }
+    this.state = { error: null, componentStack: '' }
   }
 
-  static getDerivedStateFromError() {
-    return { hasError: true }
+  static getDerivedStateFromError(error: Error) {
+    return { error }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    this.setState({ componentStack: errorInfo.componentStack ?? '' })
+
     captureException(error, {
-      react: { componentStack: errorInfo.componentStack },
+      componentStack: this.state.componentStack,
     })
+
+    // 用户自定义回调
+    if (this.props.onError) {
+      this.props.onError(error, this.state.componentStack)
+    }
   }
 
   render() {
-    if (this.state.hasError) {
-      return this.props.fallback || <h1>Something went wrong.</h1>
+    if (this.state.error) {
+      if (this.props.fallback) {
+        return this.props.fallback
+      }
+      return <h1>出错了</h1>
     }
     return this.props.children
   }

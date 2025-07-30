@@ -19,3 +19,7 @@ export function init<C extends MonitorClient, O extends MonitorOptions>(
 export function captureException(error: Error, context?: Record<string, unknown>) {
   getCurrentClient()?.captureException(error, context)
 }
+
+export function capturePerformance(metric: string, value: number) {
+  getCurrentClient()?.capturePerformance(metric, value)
+}
