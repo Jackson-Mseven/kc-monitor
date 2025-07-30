@@ -23,7 +23,8 @@
     "react": "^16.14.0 || 17.x || 18.x || 19.x"
   },
   "dependencies": {
-    "@kc-monitor/core": "workspace:*"
+    "@kc-monitor/core": "workspace:*",
+    "web-vitals": "^5.0.3"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",

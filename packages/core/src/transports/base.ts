@@ -1,8 +1,8 @@
 import type { MakeRequest, TransportResponse } from '../types'
 
-export type DropReason = 'ratelimit_backoff' | 'queue_overflow' | 'network_error'
+type DropReason = 'ratelimit_backoff' | 'queue_overflow' | 'network_error'
 
-export interface CreateTransportOptions {
+interface CreateTransportOptions {
   /** 缓存区体积 */
   bufferSize?: number
   /** 判断是否被限流 */

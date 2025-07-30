@@ -1,4 +1,4 @@
-import { MonitorClient } from './client'
+import type { MonitorClient } from './client'
 
 let globalClient: MonitorClient | null = null
 
