@@ -11,6 +11,9 @@ interface ErrorBoundaryState {
   componentStack: string
 }
 
+/**
+ * 错误边界组件，用于捕获子组件的异常
+ */
 export class ErrorBoundary extends React.Component<
   PropsWithChildren<ErrorBoundaryProps>,
   ErrorBoundaryState

@@ -1,8 +1,8 @@
 import type { TransportInterface } from './types/transport'
-import type { Event, MonitorOptions } from './types/client'
+import type { Event, ClientOptions } from './types/client'
 import PluginManager from './plugin-manager'
 
-export abstract class MonitorClient<O extends MonitorOptions = MonitorOptions> {
+export abstract class MonitorClient<O extends ClientOptions = ClientOptions> {
   private _transport: TransportInterface
   private _pluginManager: PluginManager
   protected options: O

@@ -1,6 +1,6 @@
 import { SyncHook, SyncBailHook, SyncWaterfallHook, AsyncSeriesHook } from 'tapable'
 import type { Plugin, PluginContext } from './types'
-import type { Event, MonitorOptions } from './types/client'
+import type { Event, ClientOptions } from './types/client'
 import type { MonitorClient } from './client'
 
 export default class PluginManager {
@@ -10,7 +10,7 @@ export default class PluginManager {
   // 定义各种钩子
   public hooks = {
     // 初始化钩子
-    init: new SyncHook<[MonitorOptions]>(['options']),
+    init: new SyncHook<[ClientOptions]>(['options']),
 
     // 错误处理钩子
     beforeCaptureException: new SyncHook<[Error, Record<string, unknown> | undefined]>([

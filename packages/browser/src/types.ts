@@ -1,4 +1,4 @@
-import { MonitorOptions } from '@kc-monitor/core'
+import { ClientOptions } from '@kc-monitor/core'
 
-export type BrowserMonitorOptions = Omit<MonitorOptions, 'transport'> &
-  Partial<Pick<MonitorOptions, 'transport'>>
+export type BrowserClientOptions = Omit<ClientOptions, 'transport'> &
+  Partial<Pick<ClientOptions, 'transport'>>

@@ -2,9 +2,9 @@ import type { MonitorClient } from '../client'
 import type { TransportInterface } from './transport'
 import type { Plugin } from './plugin'
 
-export type ClientClass<F extends MonitorClient, O extends MonitorOptions> = new (options: O) => F
+export type ClientClass<F extends MonitorClient, O extends ClientOptions> = new (options: O) => F
 
-export interface MonitorOptions {
+export interface ClientOptions {
   dsn: string
   transport: TransportInterface
   plugins?: Plugin[]
