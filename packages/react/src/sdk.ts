@@ -1,5 +1,5 @@
 import { init as initBrowser } from '@kc-monitor/browser'
-import { BrowserClientOptions } from 'packages/browser/src/types'
+import type { BrowserClientOptions } from '@kc-monitor/browser'
 
 /**
  * 初始化 React 端 SDK

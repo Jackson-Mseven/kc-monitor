@@ -1,7 +1,7 @@
 import { MakeRequest } from '@kc-monitor/core'
 
 /**
- * fetch 请求
+ * 基于 fetch 的请求
  */
 export const fetchRequest: MakeRequest = async ({ payload }) => {
   await fetch('/report', {

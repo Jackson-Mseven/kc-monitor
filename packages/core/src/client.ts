@@ -5,7 +5,7 @@ import PluginManager from './plugin-manager'
 export abstract class MonitorClient<O extends ClientOptions = ClientOptions> {
   private _transport: TransportInterface
   private _pluginManager: PluginManager
-  protected options: O
+  options: O
 
   constructor(options: O) {
     this.options = options

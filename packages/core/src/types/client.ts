@@ -6,6 +6,7 @@ export type ClientClass<F extends MonitorClient, O extends ClientOptions> = new 
 
 export interface ClientOptions {
   dsn: string
+  environment: 'production' | 'development' | 'test'
   transport: TransportInterface
   plugins?: Plugin[]
 }

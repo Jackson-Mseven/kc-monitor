@@ -1,7 +1,7 @@
 import { MakeRequest } from '@kc-monitor/core'
 
 /**
- * beacon 请求
+ * 基于 navigator.sendBeacon 的请求
  */
 export const beaconRequest: MakeRequest = ({ payload }) => {
   const success = navigator.sendBeacon?.('/report', payload)

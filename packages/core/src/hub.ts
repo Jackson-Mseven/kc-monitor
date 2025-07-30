@@ -11,3 +11,7 @@ export function initClient(client: MonitorClient) {
 export function getCurrentClient(): MonitorClient | null {
   return globalClient
 }
+
+export function isProduction() {
+  return getCurrentClient()?.options.environment === 'production'
+}

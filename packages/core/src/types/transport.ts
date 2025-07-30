@@ -4,6 +4,7 @@ export interface TransportRequest {
 
 export interface TransportResponse {
   statusCode?: number
+  error?: Error
 }
 
 export type MakeRequest = (req: TransportRequest) => Promise<TransportResponse>

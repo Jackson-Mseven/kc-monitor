@@ -10,37 +10,48 @@ export default class PluginManager {
   // 定义各种钩子
   public hooks = {
     // 初始化钩子
+    /** 初始化 */
     init: new SyncHook<[ClientOptions]>(['options']),
 
     // 错误处理钩子
+    /** 捕获异常前 */
     beforeCaptureException: new SyncHook<[Error, Record<string, unknown> | undefined]>([
       'error',
       'context',
     ]),
+    /** 捕获异常，封装数据后 */
     captureException: new SyncWaterfallHook<[Event, Error, Record<string, unknown> | undefined]>([
       'event',
       'error',
       'context',
     ]),
+    /** 捕获异常后 */
     afterCaptureException: new SyncHook<[Event]>(['event']),
 
     // 性能指标钩子
+    /** 捕获性能指标前 */
     beforeCapturePerformance: new SyncHook<[string, number, Record<string, unknown> | undefined]>([
       'metric',
       'value',
       'context',
     ]),
+    /** 捕获性能指标，封装数据后 */
     capturePerformance: new SyncWaterfallHook<
       [Event, string, number, Record<string, unknown> | undefined]
     >(['event', 'metric', 'value', 'context']),
+    /** 捕获性能指标后 */
     afterCapturePerformance: new SyncHook<[Event]>(['event']),
 
     // 发送事件钩子
+    /** 发送事件前 */
     beforeSendEvent: new SyncBailHook<[Event], boolean | undefined>(['event']),
+    /** 转换事件数据 */
     transformEvent: new SyncWaterfallHook<[Event], Event>(['event']),
+    /** 发送事件后 */
     afterSendEvent: new SyncHook<[Event]>(['event']),
 
     // 异步刷新钩子
+    /** 异步刷新 */
     flush: new AsyncSeriesHook<[]>([]),
   }
 

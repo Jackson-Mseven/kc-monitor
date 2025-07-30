@@ -10,7 +10,6 @@ export const createBrowserTransport = () =>
   createTransport(
     {
       bufferSize: 32,
-      debug: true,
       getCategoryFromPayload: (payload) => {
         const parsed = JSON.parse(payload)
         return parsed.type || 'default'

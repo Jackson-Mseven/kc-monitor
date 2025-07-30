@@ -6,6 +6,7 @@ import { init, ErrorBoundary, Profiler } from '@kc-monitor/react'
 
 init({
   dsn: 'https://xxx/monitor',
+  environment: 'development',
 })
 
 createRoot(document.getElementById('root')!).render(
